@@ -129,8 +129,27 @@ def brevo(ruta, metodo='GET', cuerpo=None):
         msg = datos.get('message') or datos.get('error') or ('error %s' % estado)
         if isinstance(datos.get('message'), dict):
             msg = json.dumps(datos['message'], ensure_ascii=False)
-        raise RuntimeError(msg)
+        raise RuntimeError(traducir_brevo(msg, datos.get('code'), estado))
     return datos
+
+
+def traducir_brevo(mensaje, codigo, estado):
+    """Los errores de Brevo llegan en ingles y muy escuetos; que digan que hacer."""
+    m = (mensaje or '').lower()
+    donde = 'en el servidor (variable BREVO_KEY)' if EN_SERVIDOR else 'en Conexion con Brevo'
+    if 'key not found' in m or codigo == 'unauthorized' or estado == 401:
+        return ('Brevo no reconoce la clave configurada %s. Comprueba que es una '
+                'clave de API (empieza por xkeysib-, no por xsmtpsib-), que esta '
+                'entera y que sigue existiendo en Brevo.' % donde)
+    if estado == 403:
+        return ('Brevo acepta la clave pero no le deja hacer esto. Revisa los permisos '
+                'de la clave en Ajustes -> SMTP y API.')
+    if 'sender' in m and ('not valid' in m or 'not found' in m):
+        return ('El remitente no esta verificado en Brevo. Verificalo en '
+                'Ajustes -> Remitentes y vuelve a intentarlo.')
+    if estado == 429:
+        return 'Brevo esta limitando las peticiones. Espera un minuto y prueba otra vez.'
+    return mensaje
 
 
 # ---------------------------------------------------------------- sesion

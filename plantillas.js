@@ -80,12 +80,12 @@
     ],
     render: function (d) {
       var h = E.head(String(d.titular || 'Webinar Playoff').replace(/[*\n]/g, ' '), d.preheader || d.subtitular);
-      h += E.logo(d, true);
+      h += E.logo(d, true, 'hero');
       h += E.seccion(
         E.eyebrow(d.eyebrow) + E.gap(16) + E.dateline(d) + E.gap(14) + E.h1(d.titular) +
         (d.subtitular ? '<p class="lede">' + E.marca(d.subtitular) + '</p>' : '') +
         E.metarow(d) + E.gap(22) + E.btn(d.ctaTexto, d.ctaUrl) + E.ponente(d),
-        { top: 30, bottom: 40, align: 'center', fondo: E.C.tintSoft });
+        { top: 30, bottom: 40, align: 'center', fondo: 'hero' });
       var pts = E.list(d, 'puntos');
       if (pts.length) {
         h += E.seccion(E.h2(d.bloqueTitulo, true) + E.gap(28) + E.rejilla(pts, true, true), { top: 40, bottom: 8, align: 'center' });
@@ -143,12 +143,12 @@
     ],
     render: function (d) {
       var h = E.head(String(d.titular || 'Webinar Playoff').replace(/[*\n]/g, ' '), d.preheader || d.subtitular);
-      h += E.logo(d, true);
+      h += E.logo(d, true, 'hero');
       h += E.seccion(
         E.eyebrow(d.eyebrow) + E.gap(16) + E.dateline(d) + E.gap(14) + E.h1(d.titular) +
         (d.subtitular ? '<p class="lede">' + E.marca(d.subtitular) + '</p>' : '') +
         E.metarow(d) + E.gap(22) + E.btn(d.ctaTexto, d.ctaUrl) + E.ponente(d),
-        { top: 30, bottom: 40, align: 'center', fondo: E.C.tintSoft });
+        { top: 30, bottom: 40, align: 'center', fondo: 'hero' });
       var pts = E.list(d, 'puntos');
       if (pts.length) {
         var filas = pts.map(function (it, i) {
@@ -191,11 +191,11 @@
     ],
     render: function (d) {
       var h = E.head(String(d.titular || 'Recordatorio').replace(/[*\n]/g, ' '), d.preheader || d.texto);
-      h += E.logo(d, true);
+      h += E.logo(d, true, 'hero');
       h += E.seccion(
         E.eyebrow(d.eyebrow) + E.gap(16) + E.dateline(d) + E.gap(14) + E.h1(d.titular) +
         E.metarow(d) + E.gap(22) + E.btn(d.ctaTexto, d.ctaUrl),
-        { top: 30, bottom: 36, align: 'center', fondo: E.C.tintSoft });
+        { top: 30, bottom: 36, align: 'center', fondo: 'hero' });
       h += E.seccion('<p class="lede" style="margin-left:auto;margin-right:auto;">' + E.marca(d.texto) + '</p>' +
         (d.nota ? E.gap(16) + '<p class="meta" style="margin:0;">' + E.esc(d.nota) + '</p>' : ''),
         { top: 34, bottom: 38, align: 'center' });
@@ -274,12 +274,12 @@
     ],
     render: function (d) {
       var h = E.head(String(d.titular || 'Novedades Playoff').replace(/[*\n]/g, ' '), d.preheader || d.subtitular);
-      h += E.logo(d, true);
+      h += E.logo(d, true, 'hero');
       h += E.seccion(
         E.eyebrow(d.eyebrow) + E.gap(18) + E.h1(d.titular) +
         (d.subtitular ? '<p class="lede">' + E.marca(d.subtitular) + '</p>' : '') +
         E.gap(24) + E.btn(d.ctaTexto, d.ctaUrl),
-        { top: 30, bottom: 40, align: 'center', fondo: E.C.tintSoft });
+        { top: 30, bottom: 40, align: 'center', fondo: 'hero' });
       h += E.seccion(E.tarjetaGrande({ tag: d.destTag, t: d.destTitulo, d: d.destTexto, img: d.destImg, cta: d.destCta, ctaUrl: d.destUrl }),
         { top: 36, bottom: 6 });
       var its = E.list(d, 'items');
@@ -336,11 +336,11 @@
     ],
     render: function (d) {
       var h = E.head(String(d.titular || 'Novedades Playoff').replace(/[*\n]/g, ' '), d.preheader || d.subtitular);
-      h += E.logo(d, true);
+      h += E.logo(d, true, 'hero');
       h += E.seccion(
         E.eyebrow(d.eyebrow) + E.gap(18) + E.h1(d.titular) +
         (d.subtitular ? '<p class="lede">' + E.marca(d.subtitular) + '</p>' : ''),
-        { top: 30, bottom: 38, align: 'center', fondo: E.C.tintSoft });
+        { top: 30, bottom: 38, align: 'center', fondo: 'hero' });
       E.list(d, 'items').forEach(function (it, i) {
         h += E.seccion((i ? '<div style="height:1px;background:' + E.C.line + ';margin-bottom:30px;font-size:0;">&nbsp;</div>' : '') +
           E.fila(it, i % 2 === 1), { top: i ? 30 : 38, bottom: 0 });
@@ -393,12 +393,12 @@
     ],
     render: function (d) {
       var h = E.head(String(d.titular || 'Nueva funcionalidad').replace(/[*\n]/g, ' '), d.preheader || d.subtitular);
-      h += E.logo(d, true);
+      h += E.logo(d, true, 'hero');
       h += E.seccion(
         E.eyebrow(d.eyebrow) + E.gap(18) + E.h1(d.titular) +
         (d.subtitular ? '<p class="lede">' + E.marca(d.subtitular) + '</p>' : '') +
         E.gap(24) + E.btn(d.ctaTexto, d.ctaUrl),
-        { top: 30, bottom: 36, align: 'center', fondo: E.C.tintSoft });
+        { top: 30, bottom: 36, align: 'center', fondo: 'hero' });
       if (d.heroImg) {
         h += E.seccion('<img src="' + E.url(d.heroImg) + '" alt="" width="556" style="width:100%;height:auto;border-radius:18px;border:1px solid ' + E.C.lineSoft + ';">',
           { top: 30, bottom: 0 });
@@ -462,11 +462,11 @@
     ],
     render: function (d) {
       var h = E.head(String(d.titular || 'Newsletter Playoff').replace(/[*\n]/g, ' '), d.preheader || d.saludo);
-      h += E.logo(d, true);
+      h += E.logo(d, true, 'hero');
       h += E.seccion(
         E.eyebrow(d.eyebrow) + E.gap(18) + E.h1(d.titular) +
         (d.saludo ? '<p class="lede">' + E.marca(d.saludo) + '</p>' : ''),
-        { top: 30, bottom: 36, align: 'center', fondo: E.C.tintSoft });
+        { top: 30, bottom: 36, align: 'center', fondo: 'hero' });
       h += E.seccion(E.tarjetaGrande({ tag: d.destTag, t: d.destTitulo, d: d.destTexto, img: d.destImg, cta: d.destCta, ctaUrl: d.destUrl }),
         { top: 34, bottom: 6 });
       var its = E.list(d, 'items');
@@ -516,11 +516,11 @@
     ],
     render: function (d) {
       var h = E.head(String(d.titular || 'Newsletter Playoff').replace(/[*\n]/g, ' '), d.preheader || d.intro);
-      h += E.logo(d, true);
+      h += E.logo(d, true, 'hero');
       h += E.seccion(
         E.eyebrow(d.eyebrow) + E.gap(18) + E.h1(d.titular) +
         (d.intro ? '<p class="lede">' + E.marca(d.intro) + '</p>' : ''),
-        { top: 30, bottom: 34, align: 'center', fondo: E.C.tintSoft });
+        { top: 30, bottom: 34, align: 'center', fondo: 'hero' });
       var its = E.list(d, 'items');
       if (its.length) {
         var filas = its.map(function (it, i) {

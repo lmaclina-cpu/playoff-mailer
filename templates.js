@@ -109,8 +109,8 @@
   function cierre() { return '</table>\n</td></tr></table>\n</body>\n</html>\n'; }
 
   /* ---------------- bloques ---------------- */
-  function logo(d, centrado) {
-    return '<tr><td class="px" style="padding-top:28px;padding-bottom:6px;text-align:' + (centrado ? 'center' : 'left') + ';">' +
+  function logo(d, centrado, fondo) {
+    return '<tr><td class="px" style="padding-top:28px;padding-bottom:6px;' + fondoDe(fondo) + 'text-align:' + (centrado ? 'center' : 'left') + ';">' +
       '<img src="' + url(d.logoUrl) + '" alt="Playoff" width="118" style="width:118px;max-width:118px;height:auto;' + (centrado ? 'margin:0 auto;' : '') + 'display:block;">' +
       '</td></tr>\n';
   }
@@ -158,9 +158,9 @@
      Nada de recortes en circulo: estas fotos son de cuerpo entero y con transparencia. */
   function ponente(d) {
     if (!d.ponenteImg) return '';
-    var halo = 'radial-gradient(circle at 50% 36%, rgba(0,107,237,.17) 0, rgba(0,107,237,.06) 42%, rgba(255,255,255,0) 70%)';
+    var halo = 'radial-gradient(circle at 50% 42%,rgba(0,107,237,.18) 0,rgba(0,107,237,.06) 45%,rgba(255,255,255,0) 72%)';
     return '<table role="presentation" width="100%"><tr>' +
-      '<td align="center" style="padding-top:18px;background-color:' + C.tintSoft + ';background-image:' + halo + ';">' +
+      '<td align="center" style="padding-top:18px;background-color:#F4F9FF;background-image:' + halo + ';">' +
       '<img src="' + url(d.ponenteImg) + '" alt="' + esc(d.ponente || 'Ponente') + '" width="300" ' +
       'style="width:300px;max-width:78%;height:auto;display:block;margin:0 auto;">' +
       '</td></tr>' +
@@ -194,7 +194,7 @@
 
   /* Tarjeta grande: captura arriba, texto debajo */
   function tarjetaGrande(it) {
-    return '<table role="presentation" width="100%" class="card" style="border:1px solid ' + C.lineSoft + ';border-radius:20px;background:' + C.paper + ';">' +
+    return '<table role="presentation" width="100%" class="card" style="border:1px solid ' + C.lineSoft + ';border-radius:20px;background:' + C.paper + ';box-shadow:0 12px 30px rgba(17,24,39,.05);">' +
       (it.img ? '<tr><td style="padding:0;"><img src="' + url(it.img) + '" alt="" width="638" style="width:100%;height:auto;display:block;border-radius:20px 20px 0 0;"></td></tr>' : '') +
       '<tr><td style="padding:22px 24px 24px;">' +
       (it.tag ? pill(it.tag) + gap(13) : '') +
@@ -223,7 +223,7 @@
   /* Banda azul de promoción */
   function promo(d) {
     if (!d.promoTitulo) return '';
-    return '<table role="presentation" width="100%" style="background:' + C.blue + ';border-radius:22px;"><tr>' +
+    return '<table role="presentation" width="100%" style="background-color:' + C.blue + ';background-image:linear-gradient(135deg,#0B7BFF 0%,#0056C8 100%);border-radius:22px;"><tr>' +
       '<td style="padding:30px 32px;">' +
       (d.promoTag ? '<p style="margin:0 0 12px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:#BFDCFF;">' + esc(d.promoTag) + '</p>' : '') +
       '<p style="margin:0;font-size:24px;line-height:1.12;letter-spacing:-.8px;font-weight:800;color:#fff;">' + nl(d.promoTitulo) + '</p>' +
@@ -252,7 +252,7 @@
         (it.d ? '<p style="margin:5px 0 0;font-size:11.5px;line-height:1.5;color:' + C.gray + ';">' + esc(it.d) + '</p>' : '') +
         '</td></tr>';
     }).join('');
-    return '<table role="presentation" width="100%" style="background:' + C.tintSoft + ';border:1px solid ' + C.lineSoft + ';border-radius:20px;"><tr><td style="padding:26px 28px;">' +
+    return '<table role="presentation" width="100%" style="background-color:#FAFBFF;background-image:' + SUAVE_GRAD + ';border:1px solid ' + C.lineSoft + ';border-radius:20px;"><tr><td style="padding:26px 28px;">' +
       kicker(d.blogKicker || 'Para seguir al día') + gap(8) +
       '<p style="margin:0 0 18px;font-size:19px;line-height:1.2;letter-spacing:-.5px;font-weight:800;color:' + C.ink + ';">' + esc(d.blogTitulo || 'Últimos del blog') + '</p>' +
       '<table role="presentation" width="100%">' + filas + '</table>' +
@@ -272,10 +272,27 @@
   }
 
   /* fila de la tabla principal */
+  // Los degradados de las plantillas de Laura. Llevan siempre un color de respaldo
+  // porque Outlook no pinta degradados: alli se ve el azul palido plano.
+  var HERO_GRAD =
+    'radial-gradient(circle at 86% 15%,rgba(0,107,237,.24) 0,rgba(0,107,237,.11) 24%,rgba(255,255,255,0) 54%),' +
+    'radial-gradient(circle at 10% 18%,rgba(151,204,255,.46) 0,rgba(151,204,255,.24) 26%,rgba(255,255,255,0) 58%),' +
+    'linear-gradient(180deg,#EEF7FF 0%,#FFFFFF 82%)';
+  var SUAVE_GRAD =
+    'radial-gradient(circle at 75% 20%,rgba(151,204,255,.30) 0,rgba(151,204,255,0) 48%),' +
+    'radial-gradient(circle at 22% 85%,rgba(0,107,237,.12) 0,rgba(0,107,237,0) 52%),' +
+    'linear-gradient(180deg,#FAFBFF 0%,#FFFFFF 90%)';
+
+  function fondoDe(nombre) {
+    if (nombre === 'hero') return 'background-color:#EEF7FF;background-image:' + HERO_GRAD + ';';
+    if (nombre === 'suave') return 'background-color:#FAFBFF;background-image:' + SUAVE_GRAD + ';';
+    return nombre ? 'background:' + nombre + ';' : '';
+  }
+
   function seccion(contenido, opciones) {
     var o = opciones || {};
     return '<tr><td class="px' + (o.clase ? ' ' + o.clase : '') + '" style="padding-top:' + (o.top == null ? 34 : o.top) + 'px;padding-bottom:' + (o.bottom == null ? 0 : o.bottom) + 'px;' +
-      (o.align ? 'text-align:' + o.align + ';' : '') + (o.fondo ? 'background:' + o.fondo + ';' : '') + '">' + contenido + '</td></tr>\n';
+      (o.align ? 'text-align:' + o.align + ';' : '') + fondoDe(o.fondo) + '">' + contenido + '</td></tr>\n';
   }
   function separador() { return '<tr><td class="px"><div class="divider" style="height:1px;background:' + C.line + ';font-size:0;line-height:0;">&nbsp;</div></td></tr>\n'; }
 

@@ -6,6 +6,7 @@
 
   var S = { plantilla: null, datos: {}, id: null, nombre: '', asunto: '', movil: false, abiertos: {} };
   var timerPrev = null, timerSave = null;
+  var sucio = false;   // hay cambios que todavia no han llegado al servidor
 
   /* ============ servidor local ============ */
   function token(valor) {
@@ -137,6 +138,7 @@
     S.nombre = nombre || (t.nombre + ' · ' + hoyISO());
     S.asunto = asunto || primeraLinea(S.datos.titular || S.datos.destTitulo || t.nombre).replace(/\n/g, ' ');
     S.abiertos = {};
+    sucio = false;
     t.grupos.forEach(function (g, i) { S.abiertos[g.titulo] = i < 3; });
     vista('editor');
     renderCampos();
@@ -176,13 +178,45 @@
       add('Salir', 'btn-ghost', salir);
       return;
     }
-    add('Plantillas', 'btn-ghost', function () {
-      vista('galeria');
-    });
+    add('Plantillas', 'btn-ghost', salirDelEditor);
     add('Guardar', '', function () { guardar(true); });
     add('Ver el HTML', 'btn-ghost', modalHtml);
     add('Mandar a Brevo', 'btn-primary', modalEnviar);
   }
+
+  function salirDelEditor() {
+    if (!sucio) { sucio = false; vista('galeria'); return; }
+    var m = modal('Tienes cambios sin guardar');
+    m.body.appendChild(el('div', null,
+      'Los cambios de “' + (S.nombre || 'este envío') + '” todavía no están guardados. ¿Qué hago?'));
+    var cancelar = el('button', 'btn btn-ghost', 'Seguir editando');
+    cancelar.addEventListener('click', m.cerrar);
+    var salir = el('button', 'btn', 'Salir sin guardar');
+    salir.addEventListener('click', function () { sucio = false; m.cerrar(); vista('galeria'); });
+    var guardarYSalir = el('button', 'btn btn-primary', 'Guardar y salir');
+    guardarYSalir.addEventListener('click', function () {
+      guardarYSalir.disabled = true; guardarYSalir.textContent = 'Guardando…';
+      guardar(false).then(function () { m.cerrar(); vista('galeria'); }).catch(function (e) {
+        guardarYSalir.disabled = false; guardarYSalir.textContent = 'Guardar y salir';
+        m.body.appendChild(el('div', 'note note-err', 'No he podido guardarlo: ' + e.message));
+      });
+    });
+    m.foot.appendChild(cancelar);
+    m.foot.appendChild(salir);
+    m.foot.appendChild(guardarYSalir);
+  }
+
+  // Cerrar la pestaña o recargar con cambios a medias: aviso del navegador.
+  window.addEventListener('beforeunload', function (ev) {
+    if (!sucio) return;
+    ev.preventDefault();
+    ev.returnValue = '';
+  });
+
+  $('ir-inicio').addEventListener('click', function () {
+    if ($('vista-editor').hidden) return;
+    salirDelEditor();
+  });
 
   /* ---- campos ---- */
   function renderCampos() {
@@ -458,6 +492,7 @@
 
   /* ---- vista previa ---- */
   function cambio() {
+    sucio = true;
     clearTimeout(timerPrev);
     timerPrev = setTimeout(pintarPreview, 260);
     guardarPronto();
@@ -509,6 +544,7 @@
       id: S.id, nombre: S.nombre, plantillaId: S.plantilla.id, asunto: S.asunto, datos: S.datos
     }).then(function (r) {
       S.id = r.id;
+      sucio = false;
       if (avisar) toast('Guardado');
     }).catch(function (e) {
       if (avisar) aviso(e);
