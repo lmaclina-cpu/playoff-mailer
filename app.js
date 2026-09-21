@@ -83,6 +83,11 @@
     var cont = $('drafts'); cont.textContent = '';
     api('borradores').then(function (r) {
       var items = r.borradores || [];
+      if (r.aviso) {
+        var av = el('div', 'note note-warn', r.aviso);
+        av.style.marginTop = '20px';
+        cont.appendChild(av);
+      }
       if (!items.length) return;
       var head = el('div', 'fam-head');
       head.appendChild(el('h2', null, 'Tus envíos guardados'));
@@ -638,14 +643,20 @@
     var res = el('div');
     m.body.appendChild(res);
 
+    var b = el('button', 'btn btn-primary', 'Guardar');
     api('web/estado').then(function (r) {
+      if (r.fijado) {
+        res.appendChild(el('div', 'note note-ok', 'Esto lo configura el administrador en el servidor: las imágenes ya se suben solas.'));
+        iUser.parentNode.hidden = true;
+        iPass.parentNode.hidden = true;
+        b.hidden = true;
+        return;
+      }
       if (r.conectado) {
         res.appendChild(el('div', 'note note-ok', 'Ya configurada con el usuario ' + r.usuario + '. Si rellenas los campos, la sustituyes.'));
         iUser.value = r.usuario;
       }
     }).catch(function () {});
-
-    var b = el('button', 'btn btn-primary', 'Guardar');
     b.addEventListener('click', function () {
       if (!iUser.value.trim() || !iPass.value.trim()) {
         res.textContent = '';
@@ -682,15 +693,21 @@
     m.body.appendChild(f);
     var res = el('div');
     m.body.appendChild(res);
+    var guardar = el('button', 'btn btn-primary', 'Conectar');
 
     api('brevo/estado').then(function (r) {
+      res.textContent = '';
+      if (r.fijado) {
+        res.appendChild(el('div', 'note note-ok', 'La clave la pone el administrador en el servidor, así que aquí no hay nada que tocar.'));
+        f.hidden = true;
+        guardar.hidden = true;
+        return;
+      }
       if (r.conectado) {
-        res.textContent = '';
         res.appendChild(el('div', 'note note-ok', 'Conectada' + (r.cuenta ? ' a la cuenta de ' + r.cuenta : '') + '. Si pegas otra clave, sustituye a la actual.'));
       }
     }).catch(function () {});
 
-    var guardar = el('button', 'btn btn-primary', 'Conectar');
     guardar.addEventListener('click', function () {
       if (!i.value.trim()) { res.textContent = ''; res.appendChild(el('div', 'note note-warn', 'Pega primero la clave.')); return; }
       guardar.disabled = true; guardar.textContent = 'Comprobando…';

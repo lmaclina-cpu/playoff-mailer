@@ -21,6 +21,15 @@ Para cerrar: cierra la ventana negra.
 La primera vez, macOS puede decir que no puede abrirlo por ser de un desarrollador
 no identificado: clic derecho sobre el archivo → *Abrir* → *Abrir*.
 
+## Dos maneras de usarla
+
+**En el ordenador de cada uno**: doble clic en el lanzador, como se explica arriba.
+Cada persona con su clave y sus envíos.
+
+**Como web del equipo** (recomendado si sois varios): desplegada en un servidor,
+con un enlace que abre cualquiera. La configuración la pone el administrador una
+sola vez y los envíos guardados son comunes. Ver *Ponerla en internet*.
+
 ## Entrar
 
 La app pide un correo **@playoffinformatica.com** y te manda un código de seis
@@ -93,12 +102,42 @@ Las plantillas originales llevaban las fotos en base64 dentro del HTML y pesaban
 y se pierde el final, seguimiento incluido) y descarta las imágenes incrustadas.
 Con URL pública, cada envío pesa unos 10 KB.
 
+## Ponerla en internet (Render)
+
+1. **Antes de nada, el almacén de envíos.** En WordPress, con Code Snippets, pega
+   el contenido de `wordpress-snippet.php` y actívalo. Crea un tipo de contenido
+   privado donde la app guarda los envíos del equipo. Sin esto la app funciona,
+   pero los envíos guardados se pierden cada vez que el servidor se reinicia, y
+   avisa de ello en la portada.
+2. En [render.com](https://render.com), entra con la cuenta de GitHub.
+3. **New → Blueprint**, elige el repositorio `playoff-mailer`. Render lee
+   `render.yaml` y monta el servicio solo.
+4. Rellena las tres variables que te pide:
+   - `BREVO_KEY` — la clave de la API de Brevo.
+   - `WP_USUARIO` — tu usuario de WordPress.
+   - `WP_CLAVE` — la contraseña de aplicación de WordPress.
+
+   `SECRETO_SESION` la genera Render sola: es con lo que se firman las sesiones.
+   Si algún día quieres echar a todo el mundo, cámbiala y listo.
+5. Deploy. El enlace queda tipo `playoff-mailer.onrender.com`.
+
+A partir de ahí, quien tenga correo `@playoffinformatica.com` entra con su código.
+La clave de Brevo y las credenciales de la web quedan en el servidor: la app ya no
+las pide a nadie ni deja cambiarlas desde dentro.
+
+**Del plan gratis de Render**: el servicio se duerme tras 15 minutos sin uso, así
+que la primera visita del día tarda medio minuto en cargar. Las siguientes van
+normales.
+
 ## Ficheros
 
 - `index.html`, `app.js` — la interfaz.
 - `templates.js` — el sistema visual de los emails (colores, tipos, bloques).
 - `plantillas.js` — las 8 plantillas: qué campos tiene cada una y cómo se pinta.
-- `servidor.py` — servidor local + puente con Brevo.
+- `servidor.py` — el servidor: sirve la app, guarda los envíos y habla con Brevo
+  y con WordPress. El mismo archivo vale en el Mac y en el hosting.
+- `requirements.txt`, `render.yaml` — lo que necesita Render para desplegarla.
+- `wordpress-snippet.php` — el tipo de contenido donde se guardan los envíos.
 - `ponentes/` — las fotos fijas que salen en el selector de webinars.
 - `ref/` — las plantillas originales del zip, como referencia.
 

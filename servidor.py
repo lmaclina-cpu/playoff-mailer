@@ -11,6 +11,9 @@ import mimetypes
 import os
 import re
 import socket
+import base64
+import hashlib
+import hmac
 import secrets
 import socketserver
 import ssl
@@ -25,7 +28,9 @@ import uuid
 import webbrowser
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
-CASA = os.path.join(os.path.expanduser('~'), '.playoff-mailer')
+# En Render (y en cualquier hosting) mandan las variables de entorno; en el Mac, la carpeta del usuario.
+EN_SERVIDOR = bool(os.environ.get('PORT'))
+CASA = os.environ.get('PLAYOFF_MAILER_DATOS') or os.path.join(os.path.expanduser('~'), '.playoff-mailer')
 BORRADORES = os.path.join(CASA, 'borradores')
 CONFIG = os.path.join(CASA, 'config.json')
 SALIDA = os.path.join(CASA, 'html')
@@ -38,8 +43,7 @@ ANCHO_MAX_ALFA = 760              # las figuras recortadas no necesitan tanto
 AVISO_PESO = 600 * 1024           # a partir de aqui recomprimimos
 BREVO = 'https://api.brevo.com/v3'
 PUERTO_BASE = 8787
-SESION = os.path.join(CASA, 'sesion.json')
-DOMINIO = 'playoffinformatica.com'
+DOMINIO = os.environ.get('DOMINIO_CORREO', 'playoffinformatica.com')
 DIAS_SESION = 30
 CODIGO_MINUTOS = 10
 MAX_INTENTOS = 5
@@ -53,11 +57,27 @@ for d in (CASA, BORRADORES, SALIDA):
 
 # ---------------------------------------------------------------- config
 def leer_config():
+    """Las variables de entorno mandan sobre el archivo: en el servidor la clave
+    de Brevo y las credenciales de la web se ponen desde el panel, no desde la app."""
+    datos = {}
     try:
         with open(CONFIG, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            datos = json.load(f)
     except Exception:
-        return {}
+        datos = {}
+    for clave, variable in (('brevo_key', 'BREVO_KEY'), ('wp_usuario', 'WP_USUARIO'),
+                            ('wp_clave', 'WP_CLAVE')):
+        if os.environ.get(variable):
+            datos[clave] = os.environ[variable]
+    if os.environ.get('BREVO_CUENTA'):
+        datos['brevo_cuenta'] = os.environ['BREVO_CUENTA']
+    return datos
+
+
+def config_fijada(clave):
+    """True si ese ajuste viene del entorno: la app no debe dejar cambiarlo."""
+    return bool(os.environ.get({'brevo_key': 'BREVO_KEY', 'wp_usuario': 'WP_USUARIO',
+                                'wp_clave': 'WP_CLAVE'}.get(clave, '')))
 
 
 def escribir_config(cfg):
@@ -114,35 +134,47 @@ def brevo(ruta, metodo='GET', cuerpo=None):
 
 
 # ---------------------------------------------------------------- sesion
-def leer_sesion():
-    try:
-        with open(SESION, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception:
-        return {}
+def secreto():
+    """Con que se firman las sesiones. En el servidor, variable de entorno;
+    en local, una que se genera sola la primera vez. Cambiarla echa a todo el mundo."""
+    de_entorno = os.environ.get('SECRETO_SESION')
+    if de_entorno:
+        return de_entorno.encode('utf-8')
+    cfg = leer_config()
+    if not cfg.get('secreto'):
+        cfg['secreto'] = secrets.token_urlsafe(32)
+        escribir_config(cfg)
+    return cfg['secreto'].encode('utf-8')
 
 
-def escribir_sesion(datos):
-    tmp = SESION + '.tmp'
-    with open(tmp, 'w', encoding='utf-8') as f:
-        json.dump(datos, f, ensure_ascii=False, indent=2)
-    os.replace(tmp, SESION)
-    try:
-        os.chmod(SESION, 0o600)
-    except Exception:
-        pass
+def crear_token(correo):
+    """Token firmado: no hace falta guardar nada, asi valen varias personas a la vez."""
+    caduca = int(time.time()) + DIAS_SESION * 86400
+    cuerpo = '%s|%d' % (correo, caduca)
+    firma = hmac.new(secreto(), cuerpo.encode('utf-8'), hashlib.sha256).hexdigest()
+    crudo = (cuerpo + '|' + firma).encode('utf-8')
+    return base64.urlsafe_b64encode(crudo).decode('ascii')
 
 
 def quien_es(token):
-    """Devuelve el correo de la sesion si el token vale y no ha caducado."""
+    """Devuelve el correo si el token esta bien firmado y no ha caducado."""
     if not token:
         return None
-    s = leer_sesion()
-    if not s.get('token') or not secrets.compare_digest(str(s['token']), str(token)):
+    try:
+        crudo = base64.urlsafe_b64decode(token.encode('ascii')).decode('utf-8')
+        correo, caduca, firma = crudo.rsplit('|', 2)
+    except Exception:
         return None
-    if time.time() > float(s.get('caduca') or 0):
+    esperada = hmac.new(secreto(), ('%s|%s' % (correo, caduca)).encode('utf-8'),
+                        hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(esperada, firma):
         return None
-    return s.get('correo')
+    try:
+        if time.time() > float(caduca):
+            return None
+    except Exception:
+        return None
+    return correo
 
 
 def correo_valido(correo):
@@ -218,40 +250,60 @@ def pedir_binario(url, datos, cabeceras, timeout=60):
         raise RuntimeError('sin conexion con la web (%s)' % e.reason)
 
 
-def tiene_alfa(ruta):
-    """Las fotos recortadas (ponentes) llegan con transparencia: hay que respetarla."""
-    import subprocess
+def _pillow():
     try:
-        r = subprocess.run(['/usr/bin/sips', '-g', 'hasAlpha', ruta],
-                           capture_output=True, timeout=20, text=True)
-        return 'yes' in r.stdout
+        from PIL import Image
+        return Image
     except Exception:
-        return False
+        return None
 
 
 def optimizar(origen):
     """Deja la imagen lista para correo y la reduce de ancho.
-    JPG en general; PNG si la imagen tiene transparencia, para no perderla.
-    Devuelve (bytes, nombre, tipo). Usa sips, que viene con macOS."""
+    JPG en general; PNG si tiene transparencia, para no perderla.
+    Usa Pillow si esta (servidor) y si no sips, que viene con macOS."""
+    base = slug(os.path.splitext(os.path.basename(origen))[0])
+    Image = _pillow()
+    if Image is not None:
+        with Image.open(origen) as im:
+            alfa = im.mode in ('RGBA', 'LA') or (im.mode == 'P' and 'transparency' in im.info)
+            ancho = ANCHO_MAX_ALFA if alfa else ANCHO_MAX
+            if im.width > ancho:
+                alto = max(1, round(im.height * ancho / im.width))
+                im = im.resize((ancho, alto), Image.LANCZOS)
+            destino = os.path.join(SALIDA, base + ('.png' if alfa else '.jpg'))
+            if alfa:
+                im.convert('RGBA').save(destino, 'PNG', optimize=True)
+            else:
+                im.convert('RGB').save(destino, 'JPEG', quality=82, optimize=True,
+                                       progressive=True)
+        with open(destino, 'rb') as f:
+            return f.read(), os.path.basename(destino), ('image/png' if alfa else 'image/jpeg')
+
+    # sin Pillow: macOS
     import subprocess
-    base = os.path.splitext(os.path.basename(origen))[0]
-    alfa = tiene_alfa(origen)
+    alfa = False
+    try:
+        r = subprocess.run(['/usr/bin/sips', '-g', 'hasAlpha', origen],
+                           capture_output=True, timeout=20, text=True)
+        alfa = 'yes' in r.stdout
+    except Exception:
+        alfa = False
     formato = 'png' if alfa else 'jpeg'
     extension = 'png' if alfa else 'jpg'
     ancho = ANCHO_MAX_ALFA if alfa else ANCHO_MAX
-    destino = os.path.join(SALIDA, slug(base) + '.' + extension)
+    destino = os.path.join(SALIDA, base + '.' + extension)
     try:
         subprocess.run(['/usr/bin/sips', '-s', 'format', formato, '-Z', str(ancho),
                         origen, '--out', destino],
                        check=True, capture_output=True, timeout=60)
     except Exception:
-        # si sips falla, subimos el original tal cual
         with open(origen, 'rb') as f:
             datos = f.read()
         ext = os.path.splitext(origen)[1].lower().lstrip('.') or 'jpg'
         tipo = {'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',
                 'gif': 'image/gif', 'webp': 'image/webp'}.get(ext, 'image/jpeg')
-        return datos, slug(base) + '.' + ext, tipo
+        return datos, base + '.' + ext, tipo
     with open(destino, 'rb') as f:
         return f.read(), os.path.basename(destino), ('image/png' if alfa else 'image/jpeg')
 
@@ -268,6 +320,82 @@ def subir_a_wp(datos, nombre, tipo):
     if not url_publica:
         raise RuntimeError('la web no ha devuelto la direccion de la imagen')
     return url_publica
+
+
+# ---------------------------------------------------------------- almacen de envios
+# En el servidor el disco se borra en cada reinicio, asi que los envios viven en
+# WordPress, en un tipo de contenido privado (pm_envio). Si no esta disponible,
+# se usa el disco y la app avisa de que puede perderlos.
+TIPO_WP = 'pm_envio'
+_wp_disponible = None
+
+
+def wp_almacen_listo():
+    """Mira una vez si el tipo de contenido existe y podemos escribir en el."""
+    global _wp_disponible
+    if _wp_disponible is not None:
+        return _wp_disponible
+    try:
+        cab = wp_cabeceras()
+    except Exception:
+        _wp_disponible = False
+        return False
+    try:
+        estado, _ = pedir(WP_BASE + '/' + TIPO_WP + '?per_page=1&context=edit', 'GET', cab)
+        _wp_disponible = (estado < 400)
+    except Exception:
+        _wp_disponible = False
+    return _wp_disponible
+
+
+def wp_listar():
+    cab = wp_cabeceras()
+    estado, datos = pedir(WP_BASE + '/' + TIPO_WP +
+                          '?per_page=60&status=private&context=edit&orderby=modified&order=desc', 'GET', cab)
+    if estado >= 400 or not isinstance(datos, list):
+        raise RuntimeError('no he podido leer los envios guardados')
+    salida = []
+    for p in datos:
+        try:
+            doc = json.loads((p.get('content') or {}).get('raw') or '{}')
+        except Exception:
+            doc = {}
+        salida.append({'id': 'wp-%s' % p.get('id'),
+                       'nombre': doc.get('nombre') or (p.get('title') or {}).get('raw') or '',
+                       'plantillaId': doc.get('plantillaId'),
+                       'guardado': doc.get('guardado') or (p.get('modified') or ''),
+                       'autor': doc.get('autor') or '',
+                       'editado_por': doc.get('editado_por') or ''})
+    return salida
+
+
+def wp_leer(bid):
+    cab = wp_cabeceras()
+    estado, p = pedir(WP_BASE + '/' + TIPO_WP + '/' + bid[3:] + '?context=edit', 'GET', cab)
+    if estado >= 400:
+        raise RuntimeError('ese envio ya no esta')
+    doc = json.loads((p.get('content') or {}).get('raw') or '{}')
+    doc['id'] = bid
+    return doc
+
+
+def wp_guardar(bid, doc):
+    cab = wp_cabeceras()
+    cuerpo = {'title': doc.get('nombre') or 'Envio', 'status': 'private',
+              'content': json.dumps(doc, ensure_ascii=False)}
+    if bid and bid.startswith('wp-'):
+        estado, p = pedir(WP_BASE + '/' + TIPO_WP + '/' + bid[3:], 'POST', cab, cuerpo)
+    else:
+        estado, p = pedir(WP_BASE + '/' + TIPO_WP, 'POST', cab, cuerpo)
+    if estado >= 400:
+        raise RuntimeError((p or {}).get('message') or 'no he podido guardar el envio')
+    return 'wp-%s' % p.get('id')
+
+
+def wp_borrar(bid):
+    cab = wp_cabeceras()
+    pedir(WP_BASE + '/' + TIPO_WP + '/' + bid[3:] + '?force=true', 'DELETE', cab)
+    return True
 
 
 # ---------------------------------------------------------------- borradores
@@ -332,23 +460,31 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
         if not secrets.compare_digest(guardado['codigo'], entrada):
             raise RuntimeError('ese codigo no es')
         _codigos.pop(destino, None)
-        token = secrets.token_urlsafe(32)
-        escribir_sesion({'token': token, 'correo': destino,
-                         'caduca': time.time() + DIAS_SESION * 86400})
-        return {'ok': True, 'token': token, 'correo': destino}
+        return {'ok': True, 'token': crear_token(destino), 'correo': destino}
 
     if ruta == 'sesion/salir' and metodo == 'POST':
-        escribir_sesion({})
+        # El token va firmado y sin estado: quien sale lo borra de su navegador.
         return {'ok': True}
 
     # --- borradores
     if ruta == 'borradores' and metodo == 'GET':
-        return {'borradores': listar_borradores()}
+        if wp_almacen_listo():
+            return {'borradores': wp_listar(), 'almacen': 'web'}
+        return {'borradores': listar_borradores(), 'almacen': 'disco',
+                'aviso': ('Los envios se estan guardando en el disco de este servidor y se '
+                          'pierden cuando se reinicia.') if EN_SERVIDOR else ''}
 
     if ruta == 'borradores/guardar' and metodo == 'POST':
         bid = cuerpo.get('id') or (slug(cuerpo.get('nombre')) + '-' + uuid.uuid4().hex[:6])
+        if str(bid).startswith('wp-') and not wp_almacen_listo():
+            bid = slug(cuerpo.get('nombre')) + '-' + uuid.uuid4().hex[:6]
         previo = {}
-        if os.path.exists(ruta_borrador(bid)):
+        if str(cuerpo.get('id') or '').startswith('wp-'):
+            try:
+                previo = wp_leer(cuerpo['id'])
+            except Exception:
+                previo = {}
+        elif os.path.exists(ruta_borrador(bid)):
             try:
                 with open(ruta_borrador(bid), 'r', encoding='utf-8') as f:
                     previo = json.load(f)
@@ -359,20 +495,29 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
                'autor': previo.get('autor') or correo or '',
                'editado_por': correo or '',
                'guardado': time.strftime('%Y-%m-%dT%H:%M:%S')}
+        if wp_almacen_listo():
+            return {'id': wp_guardar(cuerpo.get('id'), doc)}
         with open(ruta_borrador(bid), 'w', encoding='utf-8') as f:
             json.dump(doc, f, ensure_ascii=False, indent=2)
         return {'id': bid}
 
     m = re.fullmatch(r'borradores/([^/]+)/borrar', ruta)
     if m and metodo == 'POST':
-        p = ruta_borrador(urllib.parse.unquote(m.group(1)))
+        cual = urllib.parse.unquote(m.group(1))
+        if cual.startswith('wp-'):
+            wp_borrar(cual)
+            return {'ok': True}
+        p = ruta_borrador(cual)
         if os.path.exists(p):
             os.remove(p)
         return {'ok': True}
 
     m = re.fullmatch(r'borradores/([^/]+)', ruta)
     if m and metodo == 'GET':
-        with open(ruta_borrador(urllib.parse.unquote(m.group(1))), 'r', encoding='utf-8') as f:
+        cual = urllib.parse.unquote(m.group(1))
+        if cual.startswith('wp-'):
+            return wp_leer(cual)
+        with open(ruta_borrador(cual), 'r', encoding='utf-8') as f:
             return json.load(f)
 
     # --- biblioteca de imagenes de la web
@@ -408,10 +553,13 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
     if ruta == 'brevo/estado' and metodo == 'GET':
         cfg = leer_config()
         if not cfg.get('brevo_key'):
-            return {'conectado': False}
-        return {'conectado': True, 'cuenta': cfg.get('brevo_cuenta') or ''}
+            return {'conectado': False, 'fijado': False}
+        return {'conectado': True, 'cuenta': cfg.get('brevo_cuenta') or '',
+                'fijado': config_fijada('brevo_key')}
 
     if ruta == 'brevo/clave' and metodo == 'POST':
+        if config_fijada('brevo_key'):
+            raise RuntimeError('la clave de Brevo la pone el administrador en el servidor')
         clave = (cuerpo.get('clave') or '').strip()
         if not clave:
             raise RuntimeError('clave vacia')
@@ -464,9 +612,13 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
     if ruta == 'web/estado' and metodo == 'GET':
         cfg = leer_config()
         return {'conectado': bool(cfg.get('wp_usuario') and cfg.get('wp_clave')),
-                'usuario': cfg.get('wp_usuario') or ''}
+                'usuario': cfg.get('wp_usuario') or '',
+                'fijado': config_fijada('wp_usuario'),
+                'almacen': 'web' if wp_almacen_listo() else 'disco'}
 
     if ruta == 'web/credenciales' and metodo == 'POST':
+        if config_fijada('wp_usuario'):
+            raise RuntimeError('estas credenciales las pone el administrador en el servidor')
         usuario = (cuerpo.get('usuario') or '').strip()
         clave = (cuerpo.get('clave') or '').strip()
         if not usuario or not clave:
@@ -666,6 +818,12 @@ def puerto_libre():
 
 
 def main():
+    if EN_SERVIDOR:
+        puerto = int(os.environ['PORT'])
+        srv = Servidor(('0.0.0.0', puerto), Handler)
+        print('Playoff Mailer escuchando en el puerto %d' % puerto)
+        srv.serve_forever()
+        return
     abrir = '--no-abrir' not in sys.argv
     puerto = puerto_libre()
     url = 'http://127.0.0.1:%d/' % puerto

@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: playoff-mailer
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python servidor.py
+    envVars:
+      # Se rellenan en el panel de Render, nunca en el código.
+      - key: BREVO_KEY
+        sync: false
+      - key: WP_USUARIO
+        sync: false
+      - key: WP_CLAVE
+        sync: false
+      # La firma de las sesiones: Render la genera sola.
+      - key: SECRETO_SESION
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: "3.12.7"
