@@ -35,8 +35,11 @@ El de la **home publicada** de la web en Webflow (clases `sp-*`), no el antiguo 
 - **Imagen del entorno**: la captura que representa el tema del webinar. Unos 1200 px de ancho.
 - Los textos son los de la plantilla `webinar-ponente` de `plantillas.js`; no cambian.
 
+### En la app ✅
+Ya está en la app como **"Webinar · diseño web"** (`webinar-web` en `plantillas.js`), con el
+motor visual en `templates-saas.js`. Novedades, como **"Novedades · diseño web"** (`novedades-web`).
+
 ### Pendiente
-- Pasarlo a la app como plantilla editable (`plantillas.js` y `templates.js`).
 - Las fotos tienen que ir en JPG/PNG en el envío real: Outlook de escritorio no muestra WebP.
 - Hacer un envío de prueba desde Brevo (Gmail, Apple Mail y Outlook) antes de usarla.
 

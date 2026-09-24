@@ -277,14 +277,38 @@ def _pillow():
         return None
 
 
-def optimizar(origen):
+def leer_proporcion(texto):
+    """'4:3' -> 4/3. None si no viene o no se entiende."""
+    m = re.fullmatch(r'\s*(\d{1,2})\s*[:x/]\s*(\d{1,2})\s*', str(texto or ''))
+    if not m or not int(m.group(1)) or not int(m.group(2)):
+        return None
+    return int(m.group(1)) / float(int(m.group(2)))
+
+
+def recortar_centro(im, proporcion):
+    """Recorta desde el centro a esa proporcion (ancho/alto) sin deformar."""
+    if not proporcion:
+        return im
+    ancho, alto = im.size
+    if ancho / float(alto) > proporcion:
+        nuevo = max(1, round(alto * proporcion))
+        x = (ancho - nuevo) // 2
+        return im.crop((x, 0, x + nuevo, alto))
+    nuevo = max(1, round(ancho / proporcion))
+    y = (alto - nuevo) // 2
+    return im.crop((0, y, ancho, y + nuevo))
+
+
+def optimizar(origen, proporcion=None):
     """Deja la imagen lista para correo y la reduce de ancho.
     JPG en general; PNG si tiene transparencia, para no perderla.
+    Si llega una proporcion (4:3), la recorta antes desde el centro.
     Usa Pillow si esta (servidor) y si no sips, que viene con macOS."""
     base = slug(os.path.splitext(os.path.basename(origen))[0])
     Image = _pillow()
     if Image is not None:
         with Image.open(origen) as im:
+            im = recortar_centro(im, proporcion)
             alfa = im.mode in ('RGBA', 'LA') or (im.mode == 'P' and 'transparency' in im.info)
             ancho = ANCHO_MAX_ALFA if alfa else ANCHO_MAX
             if im.width > ancho:
@@ -313,6 +337,17 @@ def optimizar(origen):
     ancho = ANCHO_MAX_ALFA if alfa else ANCHO_MAX
     destino = os.path.join(SALIDA, base + '.' + extension)
     try:
+        if proporcion:
+            r = subprocess.run(['/usr/bin/sips', '-g', 'pixelWidth', '-g', 'pixelHeight', origen],
+                               capture_output=True, timeout=20, text=True)
+            w = int(re.search(r'pixelWidth: (\d+)', r.stdout).group(1))
+            h = int(re.search(r'pixelHeight: (\d+)', r.stdout).group(1))
+            if w / float(h) > proporcion:
+                w = max(1, round(h * proporcion))
+            else:
+                h = max(1, round(w / proporcion))
+            subprocess.run(['/usr/bin/sips', '-c', str(h), str(w), origen],
+                           check=True, capture_output=True, timeout=60)
         subprocess.run(['/usr/bin/sips', '-s', 'format', formato, '-Z', str(ancho),
                         origen, '--out', destino],
                        check=True, capture_output=True, timeout=60)
@@ -677,7 +712,7 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
                                 os.path.splitext(nombre)[1].lower())
         with open(temporal, 'wb') as f:
             f.write(binario)
-        datos_img, nombre_final, tipo = optimizar(temporal)
+        datos_img, nombre_final, tipo = optimizar(temporal, leer_proporcion(cuerpo.get('proporcion')))
         try:
             os.remove(temporal)
         except Exception:

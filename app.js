@@ -67,7 +67,9 @@
         thumb.appendChild(f);
         card.appendChild(thumb);
         var body = el('div', 'card-body');
-        body.appendChild(el('h3', null, t.nombre));
+        var h3 = el('h3', null, t.nombre);
+        if (t.nuevo) h3.appendChild(el('span', 'badge-nuevo', 'Nuevo'));
+        body.appendChild(h3);
         body.appendChild(el('p', null, t.tagline));
         var b = el('button', 'btn btn-primary', 'Usar esta plantilla');
         b.addEventListener('click', function () { abrir(t.id, null, null, null); });
@@ -296,14 +298,14 @@
     }
     input.addEventListener('input', function () { alCambiar(input.value); pintarMini(); });
     bBuscar.addEventListener('click', function () { modalMedios(fijar); });
-    bSubir.addEventListener('click', function () { elegirArchivo(fijar, estado); });
+    bSubir.addEventListener('click', function () { elegirArchivo(fijar, estado, o.proporcion); });
     pintarMini();
 
     if (o.galeria === 'ponentes') caja.appendChild(tiraPonentes(fijar, estado));
     return caja;
   }
 
-  function elegirArchivo(fijar, estado) {
+  function elegirArchivo(fijar, estado, proporcion) {
     var inp = document.createElement('input');
     inp.type = 'file';
     inp.accept = 'image/jpeg,image/png,image/webp';
@@ -319,9 +321,10 @@
       estado.textContent = 'Subiendo a la biblioteca de la web…';
       var fr = new FileReader();
       fr.onload = function () {
-        api('subir', { nombre: f.name, datos: String(fr.result) }).then(function (r) {
+        api('subir', { nombre: f.name, datos: String(fr.result), proporcion: proporcion || '' }).then(function (r) {
           fijar(r.url);
-          estado.textContent = 'Subida y optimizada: ' + r.original_kb + ' KB → ' + r.kb + ' KB.';
+          estado.textContent = (proporcion ? 'Recortada a ' + proporcion + ', subida' : 'Subida') +
+            ' y optimizada: ' + r.original_kb + ' KB → ' + r.kb + ' KB.';
         }).catch(function (e) {
           estado.textContent = '';
           if (/configurado la subida/.test(e.message)) {
@@ -390,7 +393,7 @@
 
     if (c.type === 'image') {
       wrap.appendChild(controlImagen(S.datos[c.k], function (v) { S.datos[c.k] = v; cambio(); },
-        { id: 'f-' + c.k, galeria: c.galeria }));
+        { id: 'f-' + c.k, galeria: c.galeria, proporcion: c.proporcion }));
       if (c.help) wrap.appendChild(el('div', 'help', c.help));
       return wrap;
     }
@@ -457,7 +460,9 @@
           if (sub.max) { cnt = el('span', 'count'); l.appendChild(cnt); }
           f.appendChild(l);
           if (sub.type === 'image') {
-            f.appendChild(controlImagen(item[sub.k], function (v) { item[sub.k] = v; cambio(); }, { galeria: sub.galeria }));
+            f.appendChild(controlImagen(item[sub.k], function (v) { item[sub.k] = v; cambio(); },
+              { galeria: sub.galeria, proporcion: sub.proporcion }));
+            if (sub.help) f.appendChild(el('div', 'help', sub.help));
             box.appendChild(f);
             return;
           }
@@ -481,7 +486,7 @@
       add.disabled = arr.length >= (c.max || 99);
       add.addEventListener('click', function () {
         var nuevo = {};
-        c.item.forEach(function (s) { nuevo[s.k] = ''; });
+        c.item.forEach(function (s) { nuevo[s.k] = s.def == null ? '' : s.def; });
         arr.push(nuevo); pintar(); cambio();
       });
       host.appendChild(add);
@@ -778,6 +783,13 @@
     if (imgs.some(function (u) { return u === '#' || !u; })) out.push('Hay una imagen sin URL: en el correo saldría un hueco.');
     if (imgs.some(function (u) { return /^http:\/\//i.test(u); })) out.push('Alguna imagen usa http en vez de https: muchos correos la bloquean.');
     if (imgs.some(function (u) { return u && !/^https:\/\//i.test(u) && u !== '#'; })) out.push('Alguna imagen no tiene dirección pública todavía: súbela con el botón Subir, o en el correo saldrá rota.');
+    P.campos(S.plantilla).forEach(function (c) {
+      if (c.requerida && !String(S.datos[c.k] || '').trim()) out.push('Falta «' + c.label + '»: sin ella ese bloque sale vacío.');
+    });
+    var fondos = (code.match(/background="([^"]*)"/g) || []).map(function (s) { return s.slice(12, -1); });
+    if (imgs.concat(fondos).some(function (u) { return /\.webp(\?|$)/i.test(u); })) {
+      out.push('Hay alguna imagen en WebP: Outlook de escritorio no la muestra. Mejor súbela otra vez con el botón Subir, que la pasa a JPG.');
+    }
     var vacios = (code.match(/href="#"/g) || []).length;
     if (vacios) out.push(vacios + (vacios === 1 ? ' enlace está' : ' enlaces están') + ' sin rellenar.');
     return out;
