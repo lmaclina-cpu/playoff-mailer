@@ -164,11 +164,12 @@ def puntos_rejilla(bg=SUAVE2):
   <tr><td class="col" width="50%" valign="top" style="padding:0 5px 10px 0;">{celdas[2]}</td><td class="col" width="50%" valign="top" style="padding:0 0 10px 5px;">{celdas[3]}</td></tr></table>'''
 
 
-def ponente_linea(color=INK, sub=GRIS, circulo=SUAVE):
+def ponente_linea(color=INK, sub=GRIS, circulo=SUAVE, tam=52):
+    nombre = 16 if tam < 80 else 20
     return f'''<table role="presentation" cellpadding="0" cellspacing="0"><tr>
-    <td width="60" valign="middle"><div style="width:52px;height:52px;border-radius:999px;background:{circulo};overflow:hidden;"><img src="{PONENTE_IMG}" width="52" alt="{D["ponente"]}" style="width:52px;margin-top:4px;"></div></td>
-    <td valign="middle" style="padding-left:8px;"><p style="margin:0;color:{color};font-size:16px;font-weight:500;">{D["ponente"]}</p>
-      <p style="margin:2px 0 0;color:{sub};font-size:14px;">{D["cargo"]}</p></td></tr></table>'''
+    <td width="{tam + 8}" valign="middle"><div style="width:{tam}px;height:{tam}px;border-radius:999px;background:{circulo};overflow:hidden;"><img src="{PONENTE_IMG}" width="{tam}" alt="{D["ponente"]}" style="width:{tam}px;margin-top:{round(tam * .08)}px;"></div></td>
+    <td valign="middle" style="padding-left:{8 if tam < 80 else 14}px;"><p style="margin:0;color:{color};font-size:{nombre}px;font-weight:500;letter-spacing:-0.01em;">{D["ponente"]}</p>
+      <p style="margin:3px 0 0;color:{sub};font-size:{14 if tam < 80 else 15}px;">{D["cargo"]}</p></td></tr></table>'''
 
 
 def h2(texto, size=40, align='center', color=INK):
@@ -405,7 +406,7 @@ def vfinal():
     c += px(fila(f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
       <td class="col" width="34%" valign="top" style="padding:0 0 20px;">{h2(D["bloque"], 30, "left")}</td>
       <td class="col" width="66%" valign="top">{puntos_lista()}</td></tr></table>''', '64px 40px 0'))
-    ponente = ponente_linea().replace(PONENTE_IMG, ponente_embebido())
+    ponente = ponente_linea(tam=96).replace(PONENTE_IMG, ponente_embebido())
     c += px(fila(f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid {LINEA};"><tr>
       <td class="col" valign="middle" style="padding:28px 0 0;">{ponente}</td>
       <td class="col" valign="middle" align="right" style="padding:28px 0 0;">{metas("right")}</td></tr></table>''', '8px 40px 0'))
