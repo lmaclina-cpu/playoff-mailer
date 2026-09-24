@@ -313,8 +313,71 @@ def v5():
     return doc('Webinar · Minimal', c)
 
 
+# =============================================================== FINAL · combinación elegida
+def ponente_embebido():
+    """En la maqueta la foto va incrustada para que se vea al abrir el HTML suelto.
+    En la app se sube a la web y se usa su URL pública, como ahora."""
+    import base64
+    with open(os.path.join(AQUI, '..', 'ponentes', 'marian-1.webp'), 'rb') as fh:
+        return 'data:image/webp;base64,' + base64.b64encode(fh.read()).decode('ascii')
+
+
+def foto_con_tarjeta(fondo, superpuesta):
+    """Foto de fondo a sangre con una tarjeta blanca encima que lleva otra foto.
+    background-image para Gmail/Apple, VML para Outlook de escritorio."""
+    return fila(f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+  <td background="{fondo}" bgcolor="#1d5fd6" valign="bottom"
+      style="background-color:#1d5fd6;background-image:url('{fondo}');background-size:cover;background-position:50% 50%;border-radius:28px;">
+  <!--[if gte mso 9]><v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:640px;height:440px;"><v:fill type="frame" src="{fondo}" color="#1d5fd6"/><v:textbox inset="0,0,0,0"><![endif]-->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td class="tarjeta-sup" align="right" style="padding:150px 28px 28px 200px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="background:#ffffff;border-radius:22px;box-shadow:0 24px 60px rgba(11,11,12,0.22);"><tr>
+          <td style="padding:8px;"><img src="{superpuesta}" width="396" alt="" style="width:396px;border-radius:16px;background:{SUAVE};"></td>
+        </tr></table>
+      </td></tr></table>
+  <!--[if gte mso 9]></v:textbox></v:rect><![endif]-->
+  </td></tr></table>''', '48px 0 0')
+
+
+def px(html):
+    return html.replace('<td style', '<td class="px" style', 1)
+
+
+def vfinal():
+    c = logo('left', '32px 40px 0').replace('<td align', '<td class="px" align', 1)
+    # 1 · portada (variante 1)
+    c += px(fila(f'''<p style="margin:0;color:{GRIS};font-size:15px;">{D["eyebrow"]}{sep()}<b style="color:{INK};font-weight:600;">{D["dia"]} {D["mes"]} · {D["hora"]}</b></p>
+    <div style="height:18px;"></div>{h1(56, align="left")}
+    <div style="height:22px;"></div>{p(D["sub"], mw=480)}
+    <div style="height:30px;"></div>{boton(D["cta"], D["url"], align="left")}''', '64px 40px 0'))
+    # 2 · foto azul con tarjeta y foto superpuesta
+    c += foto_con_tarjeta(F_HERO, F_GRADA)
+    # 3 · fila de datos (variante 5)
+    datos = ''
+    for k, v in (('Fecha', f'{D["dia"]} {D["mes"]}'), ('Hora', D['hora']), ('Duración', D['dur'])):
+        datos += f'''<td width="33%" align="center" valign="top" style="padding:22px 4px;">
+        <p style="margin:0;color:{GRIS2};font-size:13px;">{k}</p><p style="margin:6px 0 0;color:{INK};font-size:22px;letter-spacing:-0.02em;white-space:nowrap;">{v}</p></td>'''
+    c += px(fila(f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid {LINEA};border-bottom:1px solid {LINEA};"><tr>{datos}</tr></table>', '48px 40px 0'))
+    # 4 · qué veremos + ponente (variante 1)
+    c += px(fila(f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td class="col" width="34%" valign="top" style="padding:0 0 20px;">{h2(D["bloque"], 30, "left")}</td>
+      <td class="col" width="66%" valign="top">{puntos_lista()}</td></tr></table>''', '64px 40px 0'))
+    ponente = ponente_linea().replace(PONENTE_IMG, ponente_embebido())
+    c += px(fila(f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid {LINEA};"><tr>
+      <td class="col" valign="middle" style="padding:28px 0 0;">{ponente}</td>
+      <td class="col" valign="middle" align="right" style="padding:28px 0 0;">{metas("right")}</td></tr></table>''', '8px 40px 0'))
+    # 5 · frase, cierre oscuro sin foto y pie
+    c += px(fila(cita(align='left', size=30), '72px 40px 72px'))
+    c += cierre_oscuro(False) + pie()
+    html = doc('Webinar · Final', c)
+    return html.replace('.solo-d{display:none!important}',
+                        '.solo-d{display:none!important}\n    .tarjeta-sup{padding:110px 16px 16px 60px!important}')
+
+
 if __name__ == '__main__':
     for n, fn in enumerate((v1, v2, v3, v4, v5), 1):
         with open(os.path.join(AQUI, f'webinar-v{n}.html'), 'w', encoding='utf-8') as f:
             f.write(fn())
+    with open(os.path.join(AQUI, 'webinar-final.html'), 'w', encoding='utf-8') as f:
+        f.write(vfinal())
     print('ok')
