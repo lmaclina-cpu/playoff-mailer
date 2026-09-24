@@ -339,6 +339,34 @@ def foto_con_tarjeta(fondo, superpuesta):
   </td></tr></table>''', '48px 0 0')
 
 
+def embebida(ruta, tipo):
+    import base64
+    with open(os.path.join(AQUI, ruta), 'rb') as fh:
+        return f'data:{tipo};base64,' + base64.b64encode(fh.read()).decode('ascii')
+
+
+def foto_con_ventana(fondo, captura):
+    """Foto de fondo con una ventana de la plataforma encima (como .sp-win de la home):
+    barra azul con los tres puntos y la captura dentro, apoyada en el borde de abajo."""
+    puntos = ''.join(f'<span style="display:inline-block;width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,0.35);margin-right:5px;"></span>' for _ in range(3))
+    return fila(f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+  <td background="{fondo}" bgcolor="#1d5fd6" valign="bottom"
+      style="background-color:#1d5fd6;background-image:url('{fondo}');background-size:cover;background-position:50% 50%;border-radius:28px;overflow:hidden;">
+  <!--[if gte mso 9]><v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:640px;height:420px;"><v:fill type="frame" src="{fondo}" color="#1d5fd6"/><v:textbox inset="0,0,0,0"><![endif]-->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td class="ventana" style="padding:52px 40px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f4f6f9" style="background:#f4f6f9;border-radius:14px 14px 0 0;box-shadow:0 24px 60px rgba(11,11,12,0.22);">
+          <tr><td bgcolor="#0a6cf0" style="background:#0a6cf0;border-radius:14px 14px 0 0;padding:7px 12px 6px;line-height:8px;font-size:0;">{puntos}</td></tr>
+          <tr><td style="padding:10px 10px 0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="background:#ffffff;border-radius:10px 10px 0 0;"><tr>
+              <td style="padding:10px 10px 0;"><img src="{captura}" width="520" alt="" style="width:100%;display:block;"></td></tr></table>
+          </td></tr>
+        </table>
+      </td></tr></table>
+  <!--[if gte mso 9]></v:textbox></v:rect><![endif]-->
+  </td></tr></table>''', '48px 0 0')
+
+
 def px(html):
     return html.replace('<td style', '<td class="px" style', 1)
 
@@ -350,8 +378,8 @@ def vfinal():
     <div style="height:18px;"></div>{h1(56, align="left")}
     <div style="height:22px;"></div>{p(D["sub"], mw=480)}
     <div style="height:30px;"></div>{boton(D["cta"], D["url"], align="left")}''', '64px 40px 0'))
-    # 2 · foto azul con tarjeta y foto superpuesta
-    c += foto_con_tarjeta(F_HERO, F_GRADA)
+    # 2 · foto azul con la ventana de la plataforma y la captura del tema del webinar
+    c += foto_con_ventana(F_HERO, embebida('capturas/calendario.png', 'image/png'))
     # 3 · fila de datos (variante 5)
     datos = ''
     for k, v in (('Fecha', f'{D["dia"]} {D["mes"]}'), ('Hora', D['hora']), ('Duración', D['dur'])):
@@ -371,7 +399,7 @@ def vfinal():
     c += cierre_oscuro(False) + pie()
     html = doc('Webinar · Final', c)
     return html.replace('.solo-d{display:none!important}',
-                        '.solo-d{display:none!important}\n    .tarjeta-sup{padding:110px 16px 16px 60px!important}')
+                        '.solo-d{display:none!important}\n    .ventana{padding:28px 14px 0!important}')
 
 
 if __name__ == '__main__':
