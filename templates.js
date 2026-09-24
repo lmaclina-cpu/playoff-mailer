@@ -274,17 +274,26 @@
       '</td></tr></table>';
   }
 
-  /* Pie oscuro, igual que en las plantillas de diseño web */
+  /* Pie: la foto azul de la web en una tarjeta aparte, con el lema en grande y el enlace en
+     un botón blanco; debajo, en pequeño, la línea legal y la baja. Es la foto de la portada del
+     webinar de diseño web, pero aquí va de otra forma: a sangre en la tarjeta y con texto encima. */
+  var FOTO_AZUL = 'https://cdn.prod.website-files.com/6a44d3d9ce03bc32d83be675/6aa907fd5bc8c9136ac2029b_home-hero.webp';
   function pie(d) {
-    return '<tr><td style="padding:56px 0 28px;">' +
-      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="' + C.foot + '" style="background:' + C.foot + ';border-radius:28px;">' +
-      '<tr><td class="px" style="padding:40px 40px 32px;">' +
-      (d.footerText ? '<p style="margin:0;max-width:340px;color:#a1a4ab;font-size:15px;line-height:1.55;">' + marca(d.footerText) + '</p>' : '') +
-      '<p style="margin:16px 0 0;"><a href="' + url(d.footerLinkUrl) + '" style="color:#ffffff;font-size:14px;font-weight:600;">' + esc(d.footerLink || 'playoffinformatica.com') + '</a></p>' +
-      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;border-top:1px solid #1f2329;"><tr>' +
-      '<td style="padding-top:18px;color:#6f727a;font-size:13px;line-height:1.55;">' + esc(d.legal || '') +
-      '<br><a href="{{ unsubscribe }}" style="color:#6f727a;text-decoration:underline;">Darse de baja</a></td></tr></table>' +
-      '</td></tr></table></td></tr>\n';
+    var f = url(d.pieImg || FOTO_AZUL);
+    return '<tr><td style="padding:56px 0 0;">' +
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' +
+      '<td background="' + f + '" bgcolor="#1d5fd6" style="background-color:#1d5fd6;background-image:url(\'' + f + '\');background-size:cover;background-position:50% 50%;border-radius:28px;">' +
+      '<!--[if gte mso 9]><v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:640px;height:300px;">' +
+      '<v:fill type="frame" src="' + f + '" color="#1d5fd6"/><v:textbox inset="0,0,0,0"><![endif]-->' +
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td class="px" style="padding:52px 44px 48px;">' +
+      '<img src="' + url(d.logoUrl) + '" alt="Playoff" width="92" style="width:92px;height:auto;border-radius:8px;">' + gap(28) +
+      (d.footerText ? '<p style="margin:0;max-width:440px;color:#ffffff;font-size:30px;line-height:1.15;letter-spacing:-.03em;">' + marca(d.footerText) + '</p>' : '') +
+      gap(26) + btn(d.footerLink || 'playoffinformatica.com', d.footerLinkUrl, 'white') +
+      '</td></tr></table>' +
+      '<!--[if gte mso 9]></v:textbox></v:rect><![endif]-->' +
+      '</td></tr></table></td></tr>\n' +
+      '<tr><td class="px" style="padding:20px 40px 36px;text-align:center;color:' + C.grayLight + ';font-size:13px;line-height:1.55;">' + esc(d.legal || '') +
+      '<br><a href="{{ unsubscribe }}" style="color:' + C.grayLight + ';text-decoration:underline;">Darse de baja</a></td></tr>\n';
   }
 
   /* Sin degradados: los fondos "hero" y "suave" de antes ahora son blanco. */

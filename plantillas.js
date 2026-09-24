@@ -7,10 +7,13 @@
   var PRE = { k: 'preheader', label: 'Preheader', type: 'text', max: 110,
     help: 'La línea gris que acompaña al asunto en la bandeja de entrada.' };
 
-  function marca(extra) {
+  var FOTO_AZUL = 'https://cdn.prod.website-files.com/6a44d3d9ce03bc32d83be675/6aa907fd5bc8c9136ac2029b_home-hero.webp';
+  function marca(extra, sinFotoPie) {
+    var fotoPie = sinFotoPie ? [] : [{ k: 'pieImg', label: 'Foto del pie', type: 'image', def: FOTO_AZUL,
+      help: 'Va de fondo en la tarjeta del pie. Por defecto, la foto azul de la web.' }];
     return {
       titulo: 'Cabecera y pie',
-      campos: [
+      campos: fotoPie.concat([
         { k: 'logoUrl', label: 'Logo (URL)', type: 'image', def: LOGO, help: 'Tiene que ser una URL pública: la biblioteca de la web o la de Brevo.' },
         { k: 'footerText', label: 'Texto del pie', type: 'textarea', rows: 2,
           def: 'Software de gestión para federaciones, clubes y academias.' },
@@ -18,7 +21,7 @@
         { k: 'footerLinkUrl', label: 'URL de ese enlace', type: 'url', def: 'https://playoffinformatica.com/' },
         { k: 'legal', label: 'Línea legal', type: 'textarea', rows: 2,
           def: 'Recibes este correo porque formas parte de la comunidad Playoff. Playoff Informàtica, Girona.' }
-      ].concat(extra || [])
+      ]).concat(extra || [])
     };
   }
   function datosWebinar() {
@@ -96,7 +99,7 @@
         { k: 'cierreCta', label: 'Botón final', type: 'text', max: 22, def: 'Apuntarme' },
         { k: 'cierreUrl', label: 'Enlace', type: 'url', def: 'https://playoffinformatica.com/webinars/' }
       ] },
-      marca()
+      marca(null, true)
     ],
     render: function (d) {
       var h = W.head(String(d.titular || 'Webinar Playoff').replace(/[*\n]/g, ' '), d.preheader || d.subtitular);
@@ -218,7 +221,7 @@
         { k: 'promoCta', label: 'Botón', type: 'text', max: 24, def: 'Conocer Playoff Time' },
         { k: 'promoUrl', label: 'Enlace', type: 'url', def: 'https://playoffinformatica.com/' }
       ] },
-      marca()
+      marca(null, true)
     ],
     render: function (d) {
       var h = W.head(String(d.titular || 'Novedades Playoff').replace(/[*\n]/g, ' '), d.preheader || d.subtitular);
