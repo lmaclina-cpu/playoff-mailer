@@ -236,7 +236,7 @@ def vfinal():
         cols += f'''<td class="col" width="33%" valign="top" style="padding:{pad};">
       {mini(im)}<div style="height:18px;"></div>
       <div class="alto" style="height:150px;">{h3(t, 18)}<div style="height:8px;"></div>{p(d, size=15)}</div>
-      <div style="height:18px;"></div>{boton_azul(N["modulo"], N["iurl"])}<div style="height:32px;"></div></td>'''
+      <div style="height:14px;"></div><a href="{N["iurl"]}" style="color:#006bed;font-size:15px;font-weight:500;">{N["modulo"]}</a><div style="height:32px;"></div></td>'''
     c += px(fila(f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>{cols}</tr></table>', '40px 0 0'))
     # cierre oscuro y pie (variante 2)
     c += promo_oscura().replace("'88px 0 0'", "'56px 0 0'")
