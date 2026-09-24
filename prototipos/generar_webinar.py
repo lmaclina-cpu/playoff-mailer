@@ -377,7 +377,7 @@ def imagen_sobre_imagen(fondo, encima):
   <!--[if gte mso 9]><v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:640px;height:420px;"><v:fill type="frame" src="{fondo}" color="#1d5fd6"/><v:textbox inset="0,0,0,0"><![endif]-->
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
       <td class="encima" style="padding:52px 40px 0;">
-        <img src="{encima}" width="560" alt="" style="width:100%;display:block;border-radius:12px 12px 0 0;box-shadow:0 24px 60px rgba(11,11,12,0.22);">
+        <img src="{encima}" width="560" alt="" style="width:100%;display:block;border-radius:12px 12px 0 0;">
       </td></tr></table>
   <!--[if gte mso 9]></v:textbox></v:rect><![endif]-->
   </td></tr></table>''', '48px 0 0')
@@ -414,6 +414,8 @@ def vfinal():
     c += px(fila(cita(align='left', size=30), '72px 40px 72px'))
     c += cierre_oscuro(False) + pie()
     html = doc('Webinar · Final', c)
+    # diseño plano: sin sombras en ningún elemento
+    html = html.replace('box-shadow:0 6px 16px rgba(11,11,12,0.18);', '')
     return html.replace('.solo-d{display:none!important}',
                         '.solo-d{display:none!important}\n    .encima{padding:28px 14px 0!important}')
 
