@@ -127,7 +127,10 @@
     var f = url(fondo || FONDO_DEF);
     var arriba = encima
       ? '<img src="' + url(encima) + '" width="560" alt="" style="width:100%;display:block;border-radius:12px 12px 0 0;">'
-      : hueco(300);
+      : (E.enVista()
+        ? '<div style="height:300px;border:2px dashed rgba(255,255,255,.7);border-bottom:0;border-radius:12px 12px 0 0;background:rgba(255,255,255,.14);' +
+          'display:flex;align-items:center;justify-content:center;font-family:' + FONT + ';font-size:15px;color:#ffffff;">&#128444;&#65039;&nbsp; Falta la imagen del entorno</div>'
+        : hueco(300));
     return fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' +
       '<td background="' + f + '" bgcolor="#1d5fd6" valign="bottom" style="background-color:#1d5fd6;background-image:url(\'' + f + '\');' +
       'background-size:cover;background-position:50% 50%;border-radius:28px;">' +

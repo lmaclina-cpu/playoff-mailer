@@ -40,7 +40,13 @@
     if (txt != null) n.textContent = txt;
     return n;
   }
-  function html() { return S.plantilla ? S.plantilla.render(S.datos) : ''; }
+  /* vista=true: para mirarlo en la app, con recuadros donde falta una imagen.
+     Sin vista: el HTML limpio que va a Brevo o al archivo. */
+  function pintarPlantilla(t, datos, vista) {
+    window.PM_VISTA = !!vista;
+    try { return t.render(datos); } finally { window.PM_VISTA = false; }
+  }
+  function html(vista) { return S.plantilla ? pintarPlantilla(S.plantilla, S.datos, vista) : ''; }
   function hoyISO() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   function primeraLinea(s) { return String(s || '').split('\n')[0].trim(); }
 
@@ -63,7 +69,7 @@
         var f = document.createElement('iframe');
         f.setAttribute('title', 'Previsualización de ' + t.nombre);
         f.setAttribute('tabindex', '-1');
-        f.srcdoc = t.render(P.defaults(t));
+        f.srcdoc = pintarPlantilla(t, P.defaults(t), true);
         thumb.appendChild(f);
         card.appendChild(thumb);
         var body = el('div', 'card-body');
@@ -82,6 +88,13 @@
     });
   }
 
+  function fechaCorta(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(String(iso || ''));
+    if (!m) return '';
+    var meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    return (+m[3]) + ' ' + meses[+m[2] - 1] + ' · ' + m[4] + ':' + m[5];
+  }
+
   function renderBorradores() {
     var cont = $('drafts'); cont.textContent = '';
     api('borradores').then(function (r) {
@@ -92,43 +105,71 @@
         cont.appendChild(av);
       }
       if (!items.length) return;
+      var enviados = items.filter(function (it) { return it.brevo; }).length;
       var head = el('div', 'fam-head');
-      head.appendChild(el('h2', null, 'Tus envíos guardados'));
-      head.appendChild(el('span', null, items.length + (items.length === 1 ? ' guardado' : ' guardados')));
+      head.appendChild(el('h2', null, 'Tus envíos'));
+      head.appendChild(el('span', null, items.length + (items.length === 1 ? ' guardado' : ' guardados') +
+        (enviados ? ' · ' + enviados + ' en Brevo' : '')));
       cont.appendChild(head);
+      var grid = el('div', 'cards');
       items.forEach(function (it) {
-        var row = el('div', 'draft-row');
-        row.appendChild(el('span', 'nm', it.nombre || '(sin nombre)'));
         var t = P.byId[it.plantillaId];
-        var quienLo = it.autor ? it.autor.split('@')[0] : '';
-        row.appendChild(el('span', 'meta', (t ? t.nombre : it.plantillaId) + ' · ' +
-          (it.guardado || '').slice(0, 16).replace('T', ' ') + (quienLo ? ' · ' + quienLo : '')));
-        row.appendChild(el('span', 'spacer'));
-        var ab = el('button', 'btn btn-sm', 'Abrir');
+        var card = el('div', 'card');
+        var thumb = el('div', 'thumb');
+        if (t && it.datos) {
+          var f = document.createElement('iframe');
+          f.setAttribute('title', 'Previsualización de ' + (it.nombre || 'un envío'));
+          f.setAttribute('tabindex', '-1');
+          var datos = Object.assign(P.defaults(t), it.datos);
+          f.srcdoc = pintarPlantilla(t, datos, true).replace(/(src|background)="\/(?!\/)/g, '$1="' + location.origin + '/');
+          thumb.appendChild(f);
+        }
+        var estado = el('span', 'estado ' + (it.brevo ? 'estado-ok' : 'estado-borrador'),
+          it.brevo ? '✓ En Brevo' : 'Borrador');
+        if (it.brevo) {
+          estado.title = (it.brevo.tipo === 'plantilla' ? 'Guardado como plantilla' : 'Campaña creada') +
+            ' el ' + fechaCorta(it.brevo.fecha) + (it.brevo.por ? ' por ' + it.brevo.por.split('@')[0] : '');
+        }
+        thumb.appendChild(estado);
+        card.appendChild(thumb);
+        var body = el('div', 'card-body');
+        body.appendChild(el('h3', null, it.nombre || '(sin nombre)'));
+        var quienLo = (it.editado_por || it.autor || '').split('@')[0];
+        body.appendChild(el('p', null, (t ? t.nombre : (it.plantillaId || '')) + ' · ' + fechaCorta(it.guardado) + (quienLo ? ' · ' + quienLo : '')));
+        if (it.brevo) {
+          body.appendChild(el('p', 'enviado-linea', (it.brevo.tipo === 'plantilla' ? 'Guardado como plantilla en Brevo' : 'Mandado a Brevo') +
+            ' el ' + fechaCorta(it.brevo.fecha)));
+        }
+        var acciones = el('div', 'card-acciones');
+        var ab = el('button', 'btn btn-primary btn-sm', 'Abrir');
         ab.addEventListener('click', function () {
           api('borradores/' + encodeURIComponent(it.id)).then(function (d) {
             abrir(d.plantillaId, d.datos, d.id, d.nombre, d.asunto);
           }).catch(aviso);
         });
-        row.appendChild(ab);
-        var dup = el('button', 'btn btn-sm btn-ghost', 'Duplicar');
+        acciones.appendChild(ab);
+        var dup = el('button', 'btn btn-sm', 'Duplicar');
         dup.addEventListener('click', function () {
           api('borradores/' + encodeURIComponent(it.id)).then(function (d) {
             abrir(d.plantillaId, d.datos, null, (d.nombre || '') + ' (copia)', d.asunto);
           }).catch(aviso);
         });
-        row.appendChild(dup);
+        acciones.appendChild(dup);
         var bo = el('button', 'btn btn-sm btn-ghost', 'Borrar');
         bo.addEventListener('click', function () {
           confirmar('Borrar “' + (it.nombre || 'este envío') + '”?', 'Se borra solo de esta app. Lo que ya esté en Brevo no se toca.', function () {
             api('borradores/' + encodeURIComponent(it.id) + '/borrar', {}).then(renderBorradores).catch(aviso);
           });
         });
-        row.appendChild(bo);
-        cont.appendChild(row);
+        acciones.appendChild(bo);
+        body.appendChild(acciones);
+        card.appendChild(body);
+        grid.appendChild(card);
       });
+      cont.appendChild(grid);
     }).catch(function () { /* sin servidor: la galería sigue funcionando */ });
   }
+
 
   /* ============ editor ============ */
   function abrir(plantillaId, datos, id, nombre, asunto) {
@@ -286,7 +327,13 @@
     function pintarMini() {
       mini.textContent = '';
       var v = String(input.value || '').trim();
-      if (!v) { mini.hidden = true; return; }
+      if (!v) {
+        mini.hidden = false;
+        mini.className = 'img-vacia';
+        mini.textContent = 'Todavía no hay imagen: súbela o pega su dirección';
+        return;
+      }
+      mini.className = 'img-preview';
       mini.hidden = false;
       var im = document.createElement('img');
       im.src = v; im.alt = '';
@@ -515,7 +562,7 @@
     f.onload = ajustar;
     // Solo para la previa: las rutas que empiezan por / se resuelven contra el servidor local.
     // El HTML que se manda a Brevo no se toca.
-    f.srcdoc = html().replace(/(src|background)="\/(?!\/)/g, '$1="' + location.origin + '/');
+    f.srcdoc = html(true).replace(/(src|background)="\/(?!\/)/g, '$1="' + location.origin + '/');
     // Las imagenes llegan despues de onload y cambian el alto.
     setTimeout(ajustar, 120);
     setTimeout(ajustar, 600);
@@ -543,17 +590,23 @@
     clearTimeout(timerSave);
     timerSave = setTimeout(function () { guardar(false); }, 1400);
   }
+  // Los guardados van en fila: si se piden dos a la vez (p. ej. al mandar a Brevo),
+  // el segundo espera al primero y ya usa su id, así no se duplica el envío.
+  var colaGuardar = Promise.resolve();
   function guardar(avisar) {
     if (!S.plantilla) return Promise.resolve();
-    return api('borradores/guardar', {
-      id: S.id, nombre: S.nombre, plantillaId: S.plantilla.id, asunto: S.asunto, datos: S.datos
-    }).then(function (r) {
-      S.id = r.id;
-      sucio = false;
-      if (avisar) toast('Guardado');
-    }).catch(function (e) {
-      if (avisar) aviso(e);
+    colaGuardar = colaGuardar.then(function () {
+      return api('borradores/guardar', {
+        id: S.id, nombre: S.nombre, plantillaId: S.plantilla.id, asunto: S.asunto, datos: S.datos
+      }).then(function (r) {
+        S.id = r.id;
+        sucio = false;
+        if (avisar) toast('Guardado');
+      }).catch(function (e) {
+        if (avisar) aviso(e);
+      });
     });
+    return colaGuardar;
   }
 
   /* ============ modales ============ */
@@ -881,6 +934,13 @@
       var o = sRem.options[sRem.selectedIndex];
       return { email: o.value, name: o.dataset.nombre || o.value };
     }
+    function marcarEnviado(tipo, idBrevo) {
+      // Se guarda primero para tener id, y luego se apunta en el borrador que ya está en Brevo.
+      return guardar(false).then(function () {
+        if (!S.id) return;
+        return api('borradores/' + encodeURIComponent(S.id) + '/enviado', { tipo: tipo, id: idBrevo });
+      }).catch(function () { /* si falla, el envío a Brevo ya está hecho */ });
+    }
     function exito(titulo, detalle) {
       m.cerrar();
       var k = modal(titulo);
@@ -900,6 +960,7 @@
         nombre: iNombre.value, asunto: iAsunto.value, html: html(),
         remitente: remitente(), listId: Number(sLis.value)
       }).then(function (r) {
+        marcarEnviado('campana', r.id);
         exito('Borrador creado en Brevo', 'La campaña “' + iNombre.value + '” está en Brevo como borrador (id ' + r.id + ').');
       }).catch(function (e) {
         bCrear.disabled = false; bCrear.textContent = 'Crear el borrador';
@@ -913,6 +974,7 @@
       api('brevo/plantilla', {
         nombre: iNombre.value, asunto: iAsunto.value, html: html(), remitente: remitente()
       }).then(function (r) {
+        marcarEnviado('plantilla', r.id);
         exito('Plantilla guardada en Brevo', 'Ya está en tu biblioteca de plantillas (id ' + r.id + ').');
       }).catch(function (e) {
         bPlantilla.disabled = false; bPlantilla.textContent = 'Guardar como plantilla';

@@ -441,13 +441,15 @@ def sb_error(estado, datos, que):
 
 def sb_listar():
     url = (SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLA +
-           '?select=id,nombre,plantilla_id,guardado,autor,editado_por&order=guardado.desc&limit=200')
+           '?select=id,nombre,plantilla_id,guardado,autor,editado_por,doc&order=guardado.desc&limit=200')
     estado, datos = pedir(url, 'GET', sb_cabeceras())
     if estado >= 400 or not isinstance(datos, list):
         raise sb_error(estado, datos if isinstance(datos, dict) else {}, 'leer los envios guardados')
     return [{'id': d.get('id'), 'nombre': d.get('nombre') or '', 'plantillaId': d.get('plantilla_id'),
              'guardado': d.get('guardado') or '', 'autor': d.get('autor') or '',
-             'editado_por': d.get('editado_por') or ''} for d in datos]
+             'editado_por': d.get('editado_por') or '',
+             'datos': (d.get('doc') or {}).get('datos') or {},
+             'brevo': (d.get('doc') or {}).get('brevo')} for d in datos]
 
 
 def sb_leer(bid):
@@ -538,7 +540,8 @@ def wp_listar():
                        'plantillaId': doc.get('plantillaId'),
                        'guardado': doc.get('guardado') or (p.get('modified') or ''),
                        'autor': doc.get('autor') or '',
-                       'editado_por': doc.get('editado_por') or ''})
+                       'editado_por': doc.get('editado_por') or '',
+                       'datos': doc.get('datos') or {}, 'brevo': doc.get('brevo')})
     return salida
 
 
@@ -594,7 +597,8 @@ def listar_borradores():
                 d = json.load(f)
             out.append({'id': d.get('id'), 'nombre': d.get('nombre'),
                         'plantillaId': d.get('plantillaId'), 'guardado': d.get('guardado'),
-                        'autor': d.get('autor') or '', 'editado_por': d.get('editado_por') or ''})
+                        'autor': d.get('autor') or '', 'editado_por': d.get('editado_por') or '',
+                        'datos': d.get('datos') or {}, 'brevo': d.get('brevo')})
         except Exception:
             continue
     out.sort(key=lambda x: x.get('guardado') or '', reverse=True)
@@ -677,6 +681,8 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
                'autor': previo.get('autor') or correo or '',
                'editado_por': correo or '',
                'guardado': time.strftime('%Y-%m-%dT%H:%M:%S')}
+        if previo.get('brevo'):
+            doc['brevo'] = previo['brevo']
         if supabase_listo():
             return {'id': sb_guardar(doc)}
         if wp_almacen_listo():
@@ -684,6 +690,27 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
         with open(ruta_borrador(bid), 'w', encoding='utf-8') as f:
             json.dump(doc, f, ensure_ascii=False, indent=2)
         return {'id': bid}
+
+    m = re.fullmatch(r'borradores/([^/]+)/enviado', ruta)
+    if m and metodo == 'POST':
+        cual = urllib.parse.unquote(m.group(1))
+        marca = {'tipo': 'plantilla' if cuerpo.get('tipo') == 'plantilla' else 'campana',
+                 'id': cuerpo.get('id'), 'fecha': time.strftime('%Y-%m-%dT%H:%M:%S'), 'por': correo or ''}
+        if supabase_listo():
+            doc = sb_leer(cual)
+            doc['brevo'] = marca
+            sb_guardar(doc)
+        elif cual.startswith('wp-'):
+            doc = wp_leer(cual)
+            doc['brevo'] = marca
+            wp_guardar(cual, doc)
+        else:
+            with open(ruta_borrador(cual), 'r', encoding='utf-8') as f:
+                doc = json.load(f)
+            doc['brevo'] = marca
+            with open(ruta_borrador(cual), 'w', encoding='utf-8') as f:
+                json.dump(doc, f, ensure_ascii=False, indent=2)
+        return {'ok': True, 'brevo': marca}
 
     m = re.fullmatch(r'borradores/([^/]+)/borrar', ruta)
     if m and metodo == 'POST':

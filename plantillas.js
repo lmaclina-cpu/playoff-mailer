@@ -133,11 +133,12 @@
           '</tr></table>', '64px 40px 0', true);
       }
 
-      if (d.ponente || d.ponenteImg) {
+      if (d.ponente || d.ponenteImg || E.enVista()) {
         var foto = d.ponenteImg
           ? '<td width="104" valign="middle"><div style="width:96px;height:96px;border-radius:999px;background:' + W.C.suave + ';overflow:hidden;">' +
             '<img src="' + E.url(d.ponenteImg) + '" width="96" alt="' + E.esc(d.ponente || 'Ponente') + '" style="width:96px;margin-top:8px;"></div></td>'
-          : '';
+          : (E.enVista() ? '<td width="104" valign="middle"><div style="width:96px;height:96px;border-radius:999px;border:2px dashed #d4d4d8;background:#fafafa;' +
+            'display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;line-height:1.3;color:#8b8e95;">Falta<br>la foto</div></td>' : '');
         var persona = '<table role="presentation" cellpadding="0" cellspacing="0"><tr>' + foto +
           '<td valign="middle" style="padding-left:' + (foto ? 14 : 0) + 'px;">' +
           '<p style="margin:0;color:' + W.C.ink + ';font-size:20px;font-weight:500;letter-spacing:-0.01em;">' + E.esc(d.ponente || '') + '</p>' +
@@ -229,7 +230,7 @@
       if (d.destTitulo || d.destTexto) {
         var captura = d.destImg
           ? '<tr><td class="encima" style="padding:0 44px;"><img src="' + E.url(d.destImg) + '" width="552" alt="" style="width:100%;display:block;border-radius:12px 12px 0 0;"></td></tr>'
-          : '';
+          : (E.enVista() ? '<tr><td style="padding:0 44px 44px;">' + E.falta(240, 'Falta la captura') + '</td></tr>' : '');
         h += W.fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="' + W.C.suave + '" style="background:' + W.C.suave + ';border-radius:28px;">' +
           '<tr><td class="px" style="padding:44px 44px ' + (captura ? 32 : 44) + 'px;">' + W.etiqueta(d.destTag) + W.hueco(16) + W.h3(d.destTitulo || '', 34) +
           (d.destTexto ? W.hueco(14) + W.parrafo(d.destTexto) : '') +
@@ -246,7 +247,8 @@
           var pad = n === 1 ? '0' : (i === 0 ? '0 7px 0 0' : (i === n - 1 ? '0 0 0 7px' : '0 3px'));
           var imagen = it.img
             ? '<img src="' + E.url(it.img) + '" width="196" alt="" style="width:100%;height:auto;display:block;border-radius:14px;border:1px solid ' + W.C.linea + ';">' + W.hueco(18)
-            : (conImg ? '<div style="border-radius:14px;background:' + W.C.suave + ';height:147px;"></div>' + W.hueco(18) : '');
+            : (E.enVista() ? E.falta(147, 'Falta la imagen', 14) + W.hueco(18)
+              : (conImg ? '<div style="border-radius:14px;background:' + W.C.suave + ';height:147px;"></div>' + W.hueco(18) : ''));
           // En escritorio el texto tiene alto fijo para que los tres enlaces queden alineados.
           return '<td class="col" width="' + Math.floor(100 / n) + '%" valign="top" style="padding:' + pad + ';">' + imagen +
             '<div class="alto" style="height:150px;">' + W.h3(it.t || '', 18) +
@@ -382,11 +384,11 @@
         var filas = pts.map(function (it, i) {
           return '<tr><td valign="top" width="72" style="padding:' + (i ? '18px' : '0') + ' 0 0;">' +
             (i ? '<div style="height:1px;background:' + E.C.line + ';margin-bottom:18px;font-size:0;">&nbsp;</div>' : '') +
-            '<p style="margin:0;font-size:11px;font-weight:800;letter-spacing:.06em;color:' + E.C.blue + ';">' + E.esc(it.tag || ('0' + (i + 1)).slice(-2)) + '</p></td>' +
+            '<p style="margin:2px 0 0;font-size:15px;font-weight:600;color:' + E.C.blue + ';">' + E.esc(it.tag || ('0' + (i + 1)).slice(-2)) + '</p></td>' +
             '<td valign="top" style="padding:' + (i ? '18px' : '0') + ' 0 0 18px;">' +
             (i ? '<div style="height:1px;background:' + E.C.line + ';margin-bottom:18px;font-size:0;">&nbsp;</div>' : '') +
-            '<p style="margin:0 0 6px;font-size:15px;line-height:1.3;font-weight:800;color:' + E.C.ink + ';">' + E.esc(it.t || '') + '</p>' +
-            (it.d ? '<p style="margin:0;font-size:12px;line-height:1.6;color:' + E.C.gray + ';">' + E.marca(it.d) + '</p>' : '') +
+            '<p style="margin:0 0 6px;font-size:19px;line-height:1.35;letter-spacing:-.02em;color:' + E.C.ink + ';">' + E.esc(it.t || '') + '</p>' +
+            (it.d ? '<p style="margin:0;font-size:16px;line-height:1.6;color:' + E.C.gray + ';">' + E.marca(it.d) + '</p>' : '') +
             '</td></tr>';
         }).join('');
         h += E.seccion(E.h2(d.bloqueTitulo) + E.gap(24) + '<table role="presentation" width="100%">' + filas + '</table>',
@@ -628,8 +630,10 @@
         E.gap(24) + E.btn(d.ctaTexto, d.ctaUrl),
         { top: 30, bottom: 36, align: 'center', fondo: 'hero' });
       if (d.heroImg) {
-        h += E.seccion('<img src="' + E.url(d.heroImg) + '" alt="" width="556" style="width:100%;height:auto;border-radius:18px;border:1px solid ' + E.C.lineSoft + ';">',
+        h += E.seccion('<img src="' + E.url(d.heroImg) + '" alt="" width="560" style="width:100%;height:auto;border-radius:20px;border:1px solid ' + E.C.line + ';">',
           { top: 30, bottom: 0 });
+      } else if (E.enVista()) {
+        h += E.seccion(E.falta(260, 'Falta la captura principal', 20), { top: 30, bottom: 0 });
       }
       var its = E.list(d, 'items');
       if (its.length) h += E.seccion(E.h2(d.bloqueTitulo, true) + E.gap(28) + E.rejilla(its, true, true), { top: 40, bottom: 6, align: 'center' });
@@ -755,12 +759,12 @@
           return '<tr>' +
             '<td valign="top" width="42" style="padding:' + (i ? '20px' : '0') + ' 0 0;">' +
             (i ? '<div style="height:1px;background:' + E.C.line + ';margin-bottom:20px;font-size:0;">&nbsp;</div>' : '') +
-            '<p style="margin:0;font-size:12px;font-weight:800;color:' + E.C.blue + ';">' + ('0' + (i + 1)).slice(-2) + '</p></td>' +
+            '<p style="margin:2px 0 0;font-size:15px;font-weight:600;color:' + E.C.blue + ';">' + ('0' + (i + 1)).slice(-2) + '</p></td>' +
             '<td valign="top" style="padding:' + (i ? '20px' : '0') + ' 0 0;">' +
             (i ? '<div style="height:1px;background:' + E.C.line + ';margin-bottom:20px;font-size:0;">&nbsp;</div>' : '') +
-            (it.tag ? '<p style="margin:0 0 6px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:' + E.C.gray + ';">' + E.esc(it.tag) + '</p>' : '') +
-            '<a href="' + E.url(it.ctaUrl) + '" style="font-size:16px;line-height:1.3;font-weight:800;color:' + E.C.ink + ';">' + E.esc(it.t || '') + '</a>' +
-            (it.d ? '<p style="margin:6px 0 0;font-size:12px;line-height:1.55;color:' + E.C.gray + ';">' + E.esc(it.d) + '</p>' : '') +
+            (it.tag ? '<p style="margin:0 0 6px;font-size:13px;color:' + E.C.gray + ';">' + E.esc(it.tag) + '</p>' : '') +
+            '<a href="' + E.url(it.ctaUrl) + '" style="font-size:20px;line-height:1.3;letter-spacing:-.02em;color:' + E.C.ink + ';">' + E.esc(it.t || '') + '</a>' +
+            (it.d ? '<p style="margin:6px 0 0;font-size:15px;line-height:1.55;color:' + E.C.gray + ';">' + E.esc(it.d) + '</p>' : '') +
             '</td></tr>';
         }).join('');
         h += E.seccion('<table role="presentation" width="100%">' + filas + '</table>', { top: 36, bottom: 0 });
