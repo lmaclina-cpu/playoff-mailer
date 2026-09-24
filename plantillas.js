@@ -38,6 +38,234 @@
   var AYUDA_ENFASIS = 'Usa **dos asteriscos** para la palabra fuerte y *uno* para cursiva. El salto de línea se respeta.';
 
   var T = [];
+  var W = window.PM_SAAS;
+  var AYUDA_GRIS = 'Lo que pongas entre asteriscos (*así*) sale en gris: es el énfasis de este diseño. El salto de línea se respeta.';
+  var MODULO = 'Saber más de este módulo';
+
+  /* ==================== WEBINAR · DISEÑO WEB (el aprobado) ==================== */
+  T.push({
+    id: 'webinar-web',
+    familia: 'Webinars',
+    nombre: 'Webinar · diseño web',
+    nuevo: true,
+    tagline: 'El diseño de la web nueva: portada limpia, captura del entorno sobre foto, programa y ponente.',
+    grupos: [
+      { titulo: 'Portada', campos: [
+        PRE,
+        { k: 'eyebrow', label: 'Etiqueta', type: 'text', max: 34, def: 'Webinar Playoff', help: 'Va delante de la fecha y la hora.' },
+        { k: 'titular', label: 'Titular', type: 'textarea', rows: 2, max: 90,
+          def: 'Una hora para preparar\n*la temporada.*', help: AYUDA_GRIS },
+        { k: 'subtitular', label: 'Frase de apoyo', type: 'textarea', rows: 3, max: 200,
+          def: 'Una sesión práctica y directa para que salgas con las ideas claras y puedas aplicarlas desde el primer día.' },
+        { k: 'ctaTexto', label: 'Botón', type: 'text', max: 22, def: 'Reservar plaza' },
+        { k: 'ctaUrl', label: 'Enlace de inscripción', type: 'url', def: 'https://playoffinformatica.com/webinars/' }
+      ] },
+      { titulo: 'Imagen sobre imagen', campos: [
+        { k: 'entornoImg', label: 'Imagen del entorno', type: 'image', ancho: 1200, requerida: true,
+          help: 'La captura de la parte de Playoff que se explica en el webinar (calendario, cuotas, altas…), tal cual quieras que se vea. Mejor de unos 1200 px de ancho.' },
+        { k: 'fondoImg', label: 'Imagen de fondo', type: 'image', def: W.FONDO_DEF,
+          help: 'Va detrás, a sangre. Por defecto, la foto azul de la web.' }
+      ] },
+      { titulo: 'Datos del webinar', campos: [
+        { k: 'fecha', label: 'Fecha', type: 'date' },
+        { k: 'hora', label: 'Hora', type: 'time', def: '16:00' },
+        { k: 'duracion', label: 'Duración', type: 'text', max: 20, def: '60 minutos' },
+        { k: 'formato', label: 'Formato', type: 'text', max: 24, def: 'Online y en directo' }
+      ] },
+      { titulo: 'Qué veremos', campos: [
+        { k: 'bloqueTitulo', label: 'Título del bloque', type: 'text', max: 40, def: '¿Qué veremos?' },
+        { k: 'puntos', label: 'Puntos', type: 'lista', max: 6,
+          item: [{ k: 't', label: 'Título', type: 'text', max: 54 }, { k: 'd', label: 'Explicación', type: 'textarea', rows: 2, max: 170 }],
+          def: [
+            { t: 'Altas y licencias', d: 'Del formulario de inscripción a la ficha del jugador, sin teclear nada dos veces.' },
+            { t: 'Cuotas y remesas', d: 'Cobros domiciliados, impagos y recibos desde el mismo sitio.' },
+            { t: 'Horarios e instalaciones', d: 'Pistas, equipos y entrenadores encajados sin solapes.' },
+            { t: 'Preguntas en directo', d: 'Los últimos quince minutos son para tus dudas.' }
+          ] }
+      ] },
+      { titulo: 'Ponente', campos: [
+        { k: 'ponente', label: 'Nombre', type: 'text', max: 44, def: '' },
+        { k: 'ponenteCargo', label: 'Cargo', type: 'text', max: 54, def: '' },
+        { k: 'ponenteImg', label: 'Foto', type: 'image', galeria: 'ponentes',
+          help: 'Sale en un círculo de 96 px. Las de siempre ya vienen recortadas.' }
+      ] },
+      { titulo: 'Cierre', campos: [
+        { k: 'citaTexto', label: 'Frase destacada', type: 'textarea', rows: 2, max: 140,
+          def: 'Si no puedes conectarte,\n*apúntate igual: enviamos la grabación.*', help: AYUDA_GRIS },
+        { k: 'cierreTitulo', label: 'Titular final', type: 'textarea', rows: 2, max: 70, def: 'Nos vemos\n*en directo.*', help: AYUDA_GRIS },
+        { k: 'cierreCta', label: 'Botón final', type: 'text', max: 22, def: 'Apuntarme' },
+        { k: 'cierreUrl', label: 'Enlace', type: 'url', def: 'https://playoffinformatica.com/webinars/' }
+      ] },
+      marca()
+    ],
+    render: function (d) {
+      var h = W.head(String(d.titular || 'Webinar Playoff').replace(/[*\n]/g, ' '), d.preheader || d.subtitular);
+      h += W.logo(d, 'left');
+      var cuando = [E.fechaCorta(d.fecha), d.hora ? d.hora + ' h' : ''].filter(Boolean).join(' · ');
+      h += W.fila(W.antetitulo(d.eyebrow, cuando, 'left') + W.hueco(18) + W.h1(d.titular, 'left') +
+        (d.subtitular ? W.hueco(22) + W.parrafo(d.subtitular, { mw: 480 }) : '') +
+        (d.ctaTexto ? W.hueco(30) + W.boton(d.ctaTexto, d.ctaUrl) : ''), '64px 40px 0', true);
+      h += W.imagenSobreImagen(d.fondoImg, d.entornoImg);
+
+      var datos = [['Fecha', E.fechaCorta(d.fecha)], ['Hora', d.hora ? d.hora + ' h' : ''], ['Duración', d.duracion]]
+        .filter(function (x) { return x[1]; });
+      if (datos.length) {
+        var celdas = datos.map(function (x) {
+          return '<td width="' + Math.floor(100 / datos.length) + '%" align="center" valign="top" style="padding:22px 4px;">' +
+            '<p style="margin:0;color:' + W.C.gris2 + ';font-size:13px;">' + x[0] + '</p>' +
+            '<p style="margin:6px 0 0;color:' + W.C.ink + ';font-size:22px;letter-spacing:-0.02em;white-space:nowrap;">' + E.esc(x[1]) + '</p></td>';
+        }).join('');
+        h += W.fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid ' + W.C.linea +
+          ';border-bottom:1px solid ' + W.C.linea + ';"><tr>' + celdas + '</tr></table>', '48px 40px 0', true);
+      }
+
+      var pts = W.lista(d, 'puntos');
+      if (pts.length) {
+        var filas = pts.map(function (p, i) {
+          var b = 'padding:22px 0;border-top:1px solid ' + W.C.linea + ';';
+          return '<tr><td width="56" valign="top" style="' + b + '">' + W.num(i + 1) + '</td>' +
+            '<td valign="top" style="' + b + '"><p style="margin:3px 0 0;color:' + W.C.ink + ';font-size:19px;line-height:1.35;letter-spacing:-0.02em;">' + E.esc(p.t || '') + '</p>' +
+            (p.d ? '<p style="margin:6px 0 0;color:' + W.C.gris + ';font-size:16px;line-height:1.6;">' + W.texto(p.d) + '</p>' : '') + '</td></tr>';
+        }).join('');
+        h += W.fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' +
+          '<td class="col" width="34%" valign="top" style="padding:0 0 20px;">' + W.h2(d.bloqueTitulo || '', 'left', 30) + '</td>' +
+          '<td class="col" width="66%" valign="top"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">' + filas + '</table></td>' +
+          '</tr></table>', '64px 40px 0', true);
+      }
+
+      if (d.ponente || d.ponenteImg) {
+        var foto = d.ponenteImg
+          ? '<td width="104" valign="middle"><div style="width:96px;height:96px;border-radius:999px;background:' + W.C.suave + ';overflow:hidden;">' +
+            '<img src="' + E.url(d.ponenteImg) + '" width="96" alt="' + E.esc(d.ponente || 'Ponente') + '" style="width:96px;margin-top:8px;"></div></td>'
+          : '';
+        var persona = '<table role="presentation" cellpadding="0" cellspacing="0"><tr>' + foto +
+          '<td valign="middle" style="padding-left:' + (foto ? 14 : 0) + 'px;">' +
+          '<p style="margin:0;color:' + W.C.ink + ';font-size:20px;font-weight:500;letter-spacing:-0.01em;">' + E.esc(d.ponente || '') + '</p>' +
+          (d.ponenteCargo ? '<p style="margin:3px 0 0;color:' + W.C.gris + ';font-size:15px;">' + E.esc(d.ponenteCargo) + '</p>' : '') +
+          '</td></tr></table>';
+        var meta = [d.duracion, d.formato].filter(Boolean).map(E.esc).join(W.sep());
+        h += W.fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid ' + W.C.linea + ';"><tr>' +
+          '<td class="col" valign="middle" style="padding:28px 0 0;">' + persona + '</td>' +
+          '<td class="col" valign="middle" align="right" style="padding:28px 0 0;"><p style="margin:0;color:' + W.C.gris2 + ';font-size:13px;text-align:right;">' + meta + '</p></td>' +
+          '</tr></table>', '8px 40px 0', true);
+      }
+
+      if (d.citaTexto) {
+        h += W.fila('<p style="margin:0;color:' + W.C.ink + ';font-size:30px;line-height:1.3;letter-spacing:-0.025em;">' +
+          W.enfasis(d.citaTexto, W.C.gris2) + '</p>', '72px 40px 0', true);
+      }
+      if (d.cierreTitulo || d.cierreCta) {
+        h += W.fila(W.tarjetaOscura(W.h2(d.cierreTitulo || '', 'center', 40, '#ffffff', W.C.grisOscuro) +
+          (d.cierreCta ? W.hueco(28) + W.boton(d.cierreCta, d.cierreUrl, { claro: true, align: 'center' }) : '')), '72px 0 0');
+      }
+      return h + W.pie(d) + W.cierre();
+    }
+  });
+
+  /* ==================== NOVEDADES · DISEÑO WEB (el aprobado) ==================== */
+  T.push({
+    id: 'novedades-web',
+    familia: 'Novedades',
+    nombre: 'Novedades · diseño web',
+    nuevo: true,
+    tagline: 'El diseño de la web nueva: una novedad destacada en tarjeta gris y tres mejoras en columnas.',
+    grupos: [
+      { titulo: 'Portada', campos: [
+        PRE,
+        { k: 'eyebrow', label: 'Etiqueta', type: 'text', max: 24, def: 'Novedades' },
+        { k: 'mes', label: 'Mes', type: 'text', max: 24, def: 'Septiembre 2026', help: 'Sale en negrita, al lado de la etiqueta.' },
+        { k: 'titular', label: 'Titular', type: 'textarea', rows: 2, max: 80,
+          def: 'Lo nuevo de Playoff,\n*en 2 minutos.*', help: AYUDA_GRIS },
+        { k: 'subtitular', label: 'Frase de apoyo', type: 'textarea', rows: 3, max: 200,
+          def: 'Un cambio protagonista, unas cuantas mejoras rápidas y alguna cosa más que merece la pena tener en el radar.' }
+      ] },
+      { titulo: 'La novedad destacada', campos: [
+        { k: 'destTag', label: 'Etiqueta', type: 'text', max: 26, def: 'La novedad del mes' },
+        { k: 'destTitulo', label: 'Titular', type: 'textarea', rows: 2, max: 80, def: 'Las nóminas ya forman parte de tu Time' },
+        { k: 'destTexto', label: 'Explicación', type: 'textarea', rows: 4,
+          def: 'Sube el PDF del mes y Playoff reparte cada nómina a su trabajador. Cada persona se la descarga desde su acceso, sin pasar por administración. Incluido **sin coste** para los clientes del módulo Time.',
+          help: 'Lo que pongas entre **dos asteriscos** sale en negro.' },
+        { k: 'destImg', label: 'Captura', type: 'image', ancho: 1200, requerida: true,
+          help: 'Horizontal. Va apoyada en el borde de abajo de la tarjeta gris.' },
+        { k: 'destCta', label: 'Botón', type: 'text', max: 28, def: MODULO },
+        { k: 'destUrl', label: 'Enlace del botón', type: 'url', def: 'https://playoffinformatica.com/' }
+      ] },
+      { titulo: 'Y además', campos: [
+        { k: 'masKicker', label: 'Antetítulo', type: 'text', max: 30, def: 'Y además' },
+        { k: 'masTitulo', label: 'Titular del bloque', type: 'textarea', rows: 2, max: 80,
+          def: 'Mejoras pequeñas.\n*Pero muy de agradecer.*', help: AYUDA_GRIS },
+        { k: 'items', label: 'Mejoras', type: 'lista', max: 3,
+          item: [
+            { k: 't', label: 'Título', type: 'text', max: 40 },
+            { k: 'd', label: 'Explicación', type: 'textarea', rows: 2, max: 110 },
+            { k: 'img', label: 'Imagen', type: 'image', proporcion: '4:3',
+              help: 'Al subirla se recorta a 4:3 (desde el centro), así las tres miden igual.' },
+            { k: 'cta', label: 'Texto del enlace', type: 'text', max: 28, def: MODULO },
+            { k: 'ctaUrl', label: 'URL', type: 'url' }
+          ],
+          def: [
+            { t: 'Altas masivas desde Excel', d: 'Sube el listado de la temporada y avisamos de los duplicados antes de guardar nada.', cta: MODULO, ctaUrl: 'https://playoffinformatica.com/' },
+            { t: 'Avisos de impago automáticos', d: 'Cuando una remesa vuelve, el recibo queda marcado y sale el aviso al socio.', cta: MODULO, ctaUrl: 'https://playoffinformatica.com/' },
+            { t: 'Buscador en la ficha del socio', d: 'Encuentra un recibo o un documento sin bajar por toda la ficha.', cta: MODULO, ctaUrl: 'https://playoffinformatica.com/' }
+          ] }
+      ] },
+      { titulo: 'Banda de producto', campos: [
+        { k: 'promoTag', label: 'Etiqueta', type: 'text', max: 26, def: 'Playoff Time' },
+        { k: 'promoTitulo', label: 'Titular', type: 'textarea', rows: 2, max: 60, def: 'Tu equipo ficha.\n*Tú lo ves claro.*', help: AYUDA_GRIS },
+        { k: 'promoTexto', label: 'Texto', type: 'textarea', rows: 2, max: 180,
+          def: 'Control horario pensado para que registrar entradas, salidas y pausas no sea otra tarea más.' },
+        { k: 'promoCta', label: 'Botón', type: 'text', max: 24, def: 'Conocer Playoff Time' },
+        { k: 'promoUrl', label: 'Enlace', type: 'url', def: 'https://playoffinformatica.com/' }
+      ] },
+      marca()
+    ],
+    render: function (d) {
+      var h = W.head(String(d.titular || 'Novedades Playoff').replace(/[*\n]/g, ' '), d.preheader || d.subtitular);
+      h += W.logo(d, 'center');
+      // Sin botón en la portada: no hay una página de novedades a la que llevar.
+      h += W.fila(W.antetitulo(d.eyebrow, d.mes, 'center') + W.hueco(18) + W.h1(d.titular, 'center') +
+        (d.subtitular ? W.hueco(22) + W.parrafo(d.subtitular, { m: '0 auto', align: 'center', mw: 470 }) : ''), '64px 40px 0', true);
+
+      if (d.destTitulo || d.destTexto) {
+        var captura = d.destImg
+          ? '<tr><td class="encima" style="padding:0 44px;"><img src="' + E.url(d.destImg) + '" width="552" alt="" style="width:100%;display:block;border-radius:12px 12px 0 0;"></td></tr>'
+          : '';
+        h += W.fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="' + W.C.suave + '" style="background:' + W.C.suave + ';border-radius:28px;">' +
+          '<tr><td class="px" style="padding:44px 44px ' + (captura ? 32 : 44) + 'px;">' + W.etiqueta(d.destTag) + W.hueco(16) + W.h3(d.destTitulo || '', 34) +
+          (d.destTexto ? W.hueco(14) + W.parrafo(d.destTexto) : '') +
+          (d.destCta ? W.hueco(20) + W.boton(d.destCta, d.destUrl, { azul: true }) : '') + '</td></tr>' + captura + '</table>', '56px 0 0');
+      }
+
+      var its = W.lista(d, 'items').slice(0, 3);
+      if (its.length) {
+        h += W.fila('<p style="margin:0;color:' + W.C.gris + ';font-size:15px;text-align:center;">' + E.esc(d.masKicker || '') + '</p>' +
+          W.hueco(12) + W.h2(d.masTitulo || '', 'center', 40), '88px 40px 0', true);
+        var n = its.length;
+        var conImg = its.some(function (it) { return it.img; });
+        var cols = its.map(function (it, i) {
+          var pad = n === 1 ? '0' : (i === 0 ? '0 7px 0 0' : (i === n - 1 ? '0 0 0 7px' : '0 3px'));
+          var imagen = it.img
+            ? '<img src="' + E.url(it.img) + '" width="196" alt="" style="width:100%;height:auto;display:block;border-radius:14px;border:1px solid ' + W.C.linea + ';">' + W.hueco(18)
+            : (conImg ? '<div style="border-radius:14px;background:' + W.C.suave + ';height:147px;"></div>' + W.hueco(18) : '');
+          // En escritorio el texto tiene alto fijo para que los tres enlaces queden alineados.
+          return '<td class="col" width="' + Math.floor(100 / n) + '%" valign="top" style="padding:' + pad + ';">' + imagen +
+            '<div class="alto" style="height:150px;">' + W.h3(it.t || '', 18) +
+            (it.d ? W.hueco(8) + W.parrafo(it.d, { size: 15 }) : '') + '</div>' +
+            (it.cta ? W.hueco(14) + W.enlaceAzul(it.cta, it.ctaUrl) : '') + W.hueco(32) + '</td>';
+        }).join('');
+        h += W.fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' + cols + '</tr></table>', '40px 0 0', true);
+      }
+
+      if (d.promoTitulo) {
+        h += W.fila(W.tarjetaOscura(
+          (d.promoTag ? '<p style="margin:0;color:' + W.C.grisOscuro + ';font-size:15px;">' + E.esc(d.promoTag) + '</p>' + W.hueco(14) : '') +
+          W.h2(d.promoTitulo, 'center', 40, '#ffffff', W.C.grisOscuro) +
+          (d.promoTexto ? W.hueco(16) + W.parrafo(d.promoTexto, { color: W.C.grisOscuro, size: 16, m: '0 auto', align: 'center', mw: 420, fuerte: '#ffffff' }) : '') +
+          (d.promoCta ? W.hueco(28) + W.boton(d.promoCta, d.promoUrl, { claro: true, align: 'center' }) : '')), '56px 0 0');
+      }
+      return h + W.pie(d) + W.cierre();
+    }
+  });
 
   /* ==================== 1. WEBINAR · ANUNCIO CON PONENTE ==================== */
   T.push({

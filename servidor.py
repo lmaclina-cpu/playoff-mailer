@@ -37,6 +37,18 @@ SALIDA = os.path.join(CASA, 'html')
 WP = 'https://playoffinformatica.com/wp-json/wp/v2/media'
 WP_BASE = 'https://playoffinformatica.com/wp-json/wp/v2'
 PONENTES = os.path.join(AQUI, 'ponentes')
+# Imagenes que se publican desde la propia app cuando esta en internet (Render):
+# Brevo las copia a su biblioteca desde aqui. En Render la direccion llega sola.
+PUBLICAS = os.path.join(CASA, 'publicas')
+URL_PUBLICA = (os.environ.get('URL_PUBLICA') or os.environ.get('RENDER_EXTERNAL_URL') or '').rstrip('/')
+# Supabase: donde viven los borradores y las imagenes cuando la app esta en internet.
+# Se configura con dos variables de entorno (ver README, "Ponerla en internet").
+SUPABASE_URL = (os.environ.get('SUPABASE_URL') or '').rstrip('/')
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY') or ''
+SUPABASE_TABLA = 'envios'
+SUPABASE_BUCKET = 'imagenes'
+# Lo unico que se sirve sin sesion: la app y las fotos de ponentes.
+ESTATICOS = ('index.html', 'app.js', 'templates.js', 'templates-saas.js', 'plantillas.js')
 MAX_SUBIDA = 8 * 1024 * 1024      # lo que aceptamos del disco
 ANCHO_MAX = 1400                  # ancho al que reducimos antes de publicar
 ANCHO_MAX_ALFA = 760              # las figuras recortadas no necesitan tanto
@@ -51,7 +63,7 @@ MAX_INTENTOS = 5
 ABIERTAS = ('sesion', 'sesion/codigo', 'sesion/verificar', 'sesion/salir', 'brevo/estado')
 _codigos = {}   # correo -> {'codigo', 'expira', 'intentos'}
 
-for d in (CASA, BORRADORES, SALIDA):
+for d in (CASA, BORRADORES, SALIDA, PUBLICAS):
     os.makedirs(d, exist_ok=True)
 
 
@@ -277,14 +289,38 @@ def _pillow():
         return None
 
 
-def optimizar(origen):
+def leer_proporcion(texto):
+    """'4:3' -> 4/3. None si no viene o no se entiende."""
+    m = re.fullmatch(r'\s*(\d{1,2})\s*[:x/]\s*(\d{1,2})\s*', str(texto or ''))
+    if not m or not int(m.group(1)) or not int(m.group(2)):
+        return None
+    return int(m.group(1)) / float(int(m.group(2)))
+
+
+def recortar_centro(im, proporcion):
+    """Recorta desde el centro a esa proporcion (ancho/alto) sin deformar."""
+    if not proporcion:
+        return im
+    ancho, alto = im.size
+    if ancho / float(alto) > proporcion:
+        nuevo = max(1, round(alto * proporcion))
+        x = (ancho - nuevo) // 2
+        return im.crop((x, 0, x + nuevo, alto))
+    nuevo = max(1, round(ancho / proporcion))
+    y = (alto - nuevo) // 2
+    return im.crop((0, y, ancho, y + nuevo))
+
+
+def optimizar(origen, proporcion=None):
     """Deja la imagen lista para correo y la reduce de ancho.
     JPG en general; PNG si tiene transparencia, para no perderla.
+    Si llega una proporcion (4:3), la recorta antes desde el centro.
     Usa Pillow si esta (servidor) y si no sips, que viene con macOS."""
     base = slug(os.path.splitext(os.path.basename(origen))[0])
     Image = _pillow()
     if Image is not None:
         with Image.open(origen) as im:
+            im = recortar_centro(im, proporcion)
             alfa = im.mode in ('RGBA', 'LA') or (im.mode == 'P' and 'transparency' in im.info)
             ancho = ANCHO_MAX_ALFA if alfa else ANCHO_MAX
             if im.width > ancho:
@@ -313,6 +349,17 @@ def optimizar(origen):
     ancho = ANCHO_MAX_ALFA if alfa else ANCHO_MAX
     destino = os.path.join(SALIDA, base + '.' + extension)
     try:
+        if proporcion:
+            r = subprocess.run(['/usr/bin/sips', '-g', 'pixelWidth', '-g', 'pixelHeight', origen],
+                               capture_output=True, timeout=20, text=True)
+            w = int(re.search(r'pixelWidth: (\d+)', r.stdout).group(1))
+            h = int(re.search(r'pixelHeight: (\d+)', r.stdout).group(1))
+            if w / float(h) > proporcion:
+                w = max(1, round(h * proporcion))
+            else:
+                h = max(1, round(w / proporcion))
+            subprocess.run(['/usr/bin/sips', '-c', str(h), str(w), origen],
+                           check=True, capture_output=True, timeout=60)
         subprocess.run(['/usr/bin/sips', '-s', 'format', formato, '-Z', str(ancho),
                         origen, '--out', destino],
                        check=True, capture_output=True, timeout=60)
@@ -339,6 +386,113 @@ def subir_a_wp(datos, nombre, tipo):
     if not url_publica:
         raise RuntimeError('la web no ha devuelto la direccion de la imagen')
     return url_publica
+
+
+def subir_a_brevo(datos, nombre):
+    """Publica la imagen en esta misma app y le pide a Brevo que la copie a su
+    biblioteca (img.mailinblue.com), que es donde se queda para siempre."""
+    base, ext = os.path.splitext(nombre)
+    final = '%s-%s%s' % (slug(base)[:40] or 'imagen', uuid.uuid4().hex[:10], ext.lower() or '.jpg')
+    with open(os.path.join(PUBLICAS, final), 'wb') as f:
+        f.write(datos)
+    temporal = URL_PUBLICA + '/img/' + urllib.parse.quote(final)
+    r = brevo('/emailCampaigns/images', 'POST', {'imageUrl': temporal, 'name': final})
+    url_brevo = (r or {}).get('url') or (r or {}).get('imageUrl')
+    if not url_brevo:
+        raise RuntimeError('Brevo no ha devuelto la direccion de la imagen')
+    return url_brevo
+
+
+def subir_imagen(datos, nombre, tipo):
+    """A la web de Playoff si hay credenciales de WordPress; si no y la app esta en
+    internet, a la biblioteca de Brevo con la clave que ya tiene."""
+    cfg = leer_config()
+    if supabase_listo():
+        return subir_a_supabase(datos, nombre, tipo)
+    if cfg.get('wp_usuario') and cfg.get('wp_clave'):
+        return subir_a_wp(datos, nombre, tipo)
+    if URL_PUBLICA and cfg.get('brevo_key'):
+        return subir_a_brevo(datos, nombre)
+    raise RuntimeError('todavia no has configurado la subida de imagenes a la web')
+
+
+# ---------------------------------------------------------------- supabase
+def supabase_listo():
+    return bool(SUPABASE_URL and SUPABASE_KEY)
+
+
+def sb_cabeceras(extra=None):
+    cab = {'apikey': SUPABASE_KEY}
+    # Las claves antiguas (JWT) van tambien como Bearer; las nuevas (sb_secret_...) no.
+    if not SUPABASE_KEY.startswith('sb_'):
+        cab['Authorization'] = 'Bearer ' + SUPABASE_KEY
+    cab.update(extra or {})
+    return cab
+
+
+def sb_error(estado, datos, que):
+    msg = (datos or {}).get('message') or (datos or {}).get('error') or ('error %s' % estado)
+    if estado in (401, 403):
+        msg = 'Supabase no acepta la clave (revisa SUPABASE_KEY)'
+    elif estado == 404 or 'does not exist' in str(msg) or 'Bucket not found' in str(msg):
+        msg = 'falta preparar Supabase: pega supabase.sql en su SQL Editor'
+    return RuntimeError('no he podido %s: %s' % (que, msg))
+
+
+def sb_listar():
+    url = (SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLA +
+           '?select=id,nombre,plantilla_id,guardado,autor,editado_por&order=guardado.desc&limit=200')
+    estado, datos = pedir(url, 'GET', sb_cabeceras())
+    if estado >= 400 or not isinstance(datos, list):
+        raise sb_error(estado, datos if isinstance(datos, dict) else {}, 'leer los envios guardados')
+    return [{'id': d.get('id'), 'nombre': d.get('nombre') or '', 'plantillaId': d.get('plantilla_id'),
+             'guardado': d.get('guardado') or '', 'autor': d.get('autor') or '',
+             'editado_por': d.get('editado_por') or ''} for d in datos]
+
+
+def sb_leer(bid):
+    url = (SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLA + '?select=doc&id=eq.' +
+           urllib.parse.quote(bid, safe=''))
+    estado, datos = pedir(url, 'GET', sb_cabeceras())
+    if estado >= 400 or not isinstance(datos, list):
+        raise sb_error(estado, datos if isinstance(datos, dict) else {}, 'abrir el envio')
+    if not datos:
+        raise RuntimeError('ese envio ya no esta')
+    doc = datos[0].get('doc') or {}
+    doc['id'] = bid
+    return doc
+
+
+def sb_guardar(doc):
+    fila = {'id': doc['id'], 'nombre': doc.get('nombre') or '', 'plantilla_id': doc.get('plantillaId') or '',
+            'guardado': doc.get('guardado') or '', 'autor': doc.get('autor') or '',
+            'editado_por': doc.get('editado_por') or '', 'doc': doc}
+    estado, datos = pedir(SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLA + '?on_conflict=id', 'POST',
+                          sb_cabeceras({'Prefer': 'resolution=merge-duplicates,return=minimal'}), fila)
+    if estado >= 400:
+        raise sb_error(estado, datos, 'guardar el envio')
+    return doc['id']
+
+
+def sb_borrar(bid):
+    url = SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLA + '?id=eq.' + urllib.parse.quote(bid, safe='')
+    estado, datos = pedir(url, 'DELETE', sb_cabeceras())
+    if estado >= 400:
+        raise sb_error(estado, datos, 'borrar el envio')
+    return True
+
+
+def subir_a_supabase(datos, nombre, tipo):
+    """Al almacen publico de Supabase. La URL que devuelve es permanente."""
+    base, ext = os.path.splitext(nombre)
+    final = '%s/%s-%s%s' % (time.strftime('%Y-%m'), slug(base)[:40] or 'imagen',
+                            uuid.uuid4().hex[:10], ext.lower() or '.jpg')
+    url = SUPABASE_URL + '/storage/v1/object/' + SUPABASE_BUCKET + '/' + final
+    estado, cuerpo = pedir_binario(url, datos, sb_cabeceras({'Content-Type': tipo, 'x-upsert': 'true',
+                                                              'Cache-Control': 'max-age=31536000'}))
+    if estado >= 400:
+        raise sb_error(estado, cuerpo, 'subir la imagen')
+    return SUPABASE_URL + '/storage/v1/object/public/' + SUPABASE_BUCKET + '/' + final
 
 
 # ---------------------------------------------------------------- almacen de envios
@@ -487,6 +641,8 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
 
     # --- borradores
     if ruta == 'borradores' and metodo == 'GET':
+        if supabase_listo():
+            return {'borradores': sb_listar(), 'almacen': 'supabase'}
         if wp_almacen_listo():
             return {'borradores': wp_listar(), 'almacen': 'web'}
         return {'borradores': listar_borradores(), 'almacen': 'disco',
@@ -498,7 +654,14 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
         if str(bid).startswith('wp-') and not wp_almacen_listo():
             bid = slug(cuerpo.get('nombre')) + '-' + uuid.uuid4().hex[:6]
         previo = {}
-        if str(cuerpo.get('id') or '').startswith('wp-'):
+        if supabase_listo():
+            if not cuerpo.get('id'):
+                bid = 'sb-' + bid
+            try:
+                previo = sb_leer(bid) if cuerpo.get('id') else {}
+            except Exception:
+                previo = {}
+        elif str(cuerpo.get('id') or '').startswith('wp-'):
             try:
                 previo = wp_leer(cuerpo['id'])
             except Exception:
@@ -514,6 +677,8 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
                'autor': previo.get('autor') or correo or '',
                'editado_por': correo or '',
                'guardado': time.strftime('%Y-%m-%dT%H:%M:%S')}
+        if supabase_listo():
+            return {'id': sb_guardar(doc)}
         if wp_almacen_listo():
             return {'id': wp_guardar(cuerpo.get('id'), doc)}
         with open(ruta_borrador(bid), 'w', encoding='utf-8') as f:
@@ -523,6 +688,9 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
     m = re.fullmatch(r'borradores/([^/]+)/borrar', ruta)
     if m and metodo == 'POST':
         cual = urllib.parse.unquote(m.group(1))
+        if supabase_listo():
+            sb_borrar(cual)
+            return {'ok': True}
         if cual.startswith('wp-'):
             wp_borrar(cual)
             return {'ok': True}
@@ -534,6 +702,8 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
     m = re.fullmatch(r'borradores/([^/]+)', ruta)
     if m and metodo == 'GET':
         cual = urllib.parse.unquote(m.group(1))
+        if supabase_listo():
+            return sb_leer(cual)
         if cual.startswith('wp-'):
             return wp_leer(cual)
         with open(ruta_borrador(cual), 'r', encoding='utf-8') as f:
@@ -631,9 +801,11 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
     if ruta == 'web/estado' and metodo == 'GET':
         cfg = leer_config()
         return {'conectado': bool(cfg.get('wp_usuario') and cfg.get('wp_clave')),
+                'brevo_imagenes': bool(URL_PUBLICA and cfg.get('brevo_key')),
+                'supabase': supabase_listo(),
                 'usuario': cfg.get('wp_usuario') or '',
                 'fijado': config_fijada('wp_usuario'),
-                'almacen': 'web' if wp_almacen_listo() else 'disco'}
+                'almacen': 'supabase' if supabase_listo() else ('web' if wp_almacen_listo() else 'disco')}
 
     if ruta == 'web/credenciales' and metodo == 'POST':
         if config_fijada('wp_usuario'):
@@ -677,12 +849,12 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
                                 os.path.splitext(nombre)[1].lower())
         with open(temporal, 'wb') as f:
             f.write(binario)
-        datos_img, nombre_final, tipo = optimizar(temporal)
+        datos_img, nombre_final, tipo = optimizar(temporal, leer_proporcion(cuerpo.get('proporcion')))
         try:
             os.remove(temporal)
         except Exception:
             pass
-        url_publica = subir_a_wp(datos_img, nombre_final, tipo)
+        url_publica = subir_imagen(datos_img, nombre_final, tipo)
         return {'url': url_publica, 'kb': round(len(datos_img) / 1024.0, 1),
                 'original_kb': round(len(binario) / 1024.0, 1)}
 
@@ -714,7 +886,7 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
         if publicadas.get(nombre):
             return {'url': publicadas[nombre], 'reutilizada': True}
         datos_img, nombre_final, tipo = optimizar(origen)
-        url_publica = subir_a_wp(datos_img, nombre_final, tipo)
+        url_publica = subir_imagen(datos_img, nombre_final, tipo)
         publicadas[nombre] = url_publica
         cfg['ponentes_urls'] = publicadas
         escribir_config(cfg)
@@ -751,12 +923,22 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def _estatico(self, camino):
         if camino in ('', '/'):
             camino = '/index.html'
-        limpio = os.path.normpath(camino.lstrip('/'))
+        limpio = os.path.normpath(urllib.parse.unquote(camino).lstrip('/'))
         if limpio.startswith('..') or os.path.isabs(limpio):
             self._json(404, {'error': 'no encontrado'})
             return
-        destino = os.path.join(AQUI, limpio)
-        if not os.path.isfile(destino):
+        # Solo la app, las fotos de ponentes y las imagenes publicadas para Brevo.
+        # Nada mas: ni el codigo del servidor ni la carpeta .git.
+        carpeta, archivo = os.path.split(limpio)
+        if carpeta == '' and archivo in ESTATICOS:
+            destino = os.path.join(AQUI, archivo)
+        elif carpeta == 'ponentes' and re.search(r'\.(jpe?g|png|webp)$', archivo, re.I):
+            destino = os.path.join(PONENTES, archivo)
+        elif carpeta == 'img' and re.fullmatch(r'[\w.-]+\.(jpe?g|png|webp|gif)', archivo, re.I):
+            destino = os.path.join(PUBLICAS, archivo)
+        else:
+            destino = ''
+        if not destino or not os.path.isfile(destino):
             self._json(404, {'error': 'no encontrado'})
             return
         tipo = mimetypes.guess_type(destino)[0] or 'application/octet-stream'
