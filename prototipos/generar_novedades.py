@@ -201,8 +201,39 @@ def v5():
     return salida('Novedades · Minimal', c, pie_claro())
 
 
+# =============================================================== FINAL · combinación elegida
+def mini(src):
+    """Imagen de las mejoras pequeñas: todas con la misma proporción (4:3).
+    En la app se recortan a 4:3 al subirlas, así las tres columnas quedan igual."""
+    return (f'<img src="{src}" width="196" height="147" alt="" '
+            f'style="width:100%;height:auto;display:block;border-radius:14px;border:1px solid {LINEA};">')
+
+
+def vfinal():
+    # portada centrada (variante 2)
+    c = logo('center', '32px 0 0') + portada('center')
+    # destacada en tarjeta gris con la captura apoyada abajo (variante 4)
+    c += fila(f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="{SUAVE}" style="background:{SUAVE};border-radius:28px;">
+  <tr><td class="px" style="padding:44px 44px 32px;">{destacada_texto()}</td></tr>
+  <tr><td class="encima" style="padding:0 44px;">{img(ENTORNO, 12, False).replace("border-radius:12px", "border-radius:12px 12px 0 0")}</td></tr></table>''', '56px 0 0')
+    # y además: tres columnas con imágenes del mismo tamaño (variante 2)
+    c += bloque_ademas('center')
+    cols = ''
+    for i, ((t, d), im) in enumerate(zip(N['items'], MINIS)):
+        pad = '0 7px 0 0' if i == 0 else ('0 0 0 7px' if i == 2 else '0 3px')
+        cols += f'''<td class="col" width="33%" valign="top" style="padding:{pad};">
+      {mini(im)}<div style="height:18px;"></div>{h3(t, 18)}<div style="height:8px;"></div>{p(d, size=15)}
+      <div style="height:12px;"></div>{enlace(N["icta"], N["iurl"])}<div style="height:32px;"></div></td>'''
+    c += px(fila(f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>{cols}</tr></table>', '40px 0 0'))
+    # cierre oscuro y pie (variante 2)
+    c += promo_oscura().replace("'88px 0 0'", "'56px 0 0'")
+    return salida('Novedades · Final', c)
+
+
 if __name__ == '__main__':
     for n, fn in enumerate((v1, v2, v3, v4, v5), 1):
         with open(os.path.join(AQUI, f'novedades-v{n}.html'), 'w', encoding='utf-8') as f:
             f.write(fn())
+    with open(os.path.join(AQUI, 'novedades-final.html'), 'w', encoding='utf-8') as f:
+        f.write(vfinal())
     print('ok')

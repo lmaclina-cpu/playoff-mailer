@@ -39,3 +39,22 @@ El de la **home publicada** de la web en Webflow (clases `sp-*`), no el antiguo 
 - Pasarlo a la app como plantilla editable (`plantillas.js` y `templates.js`).
 - Las fotos tienen que ir en JPG/PNG en el envío real: Outlook de escritorio no muestra WebP.
 - Hacer un envío de prueba desde Brevo (Gmail, Apple Mail y Outlook) antes de usarla.
+
+## Novedades: diseño elegido ✅
+
+**`novedades-final.html`**, generado con `python3 generar_novedades.py` (función `vfinal`).
+Las `novedades-v1…v5` fueron exploración. Mismo sistema que el webinar: plano y sin sombras.
+
+### Orden de bloques
+1. Logo centrado.
+2. Portada centrada: Novedades | mes, titular, frase y botón negro.
+3. **Destacada** en tarjeta gris `#f3f4f6` (esquinas de 28 px): etiqueta, titular, texto
+   y enlace. La captura va apoyada en el borde de abajo de la tarjeta.
+4. "Y además" + titular centrado.
+5. **Tres mejoras en tres columnas** (se apilan en el móvil): imagen, título, texto y enlace.
+   **Las tres imágenes tienen el mismo tamaño**: proporción 4:3. En la app se recortan a 4:3
+   al subirlas, para que no descuadre aunque se suban capturas distintas.
+6. Banda oscura de Playoff Time y pie oscuro.
+
+Textos: los de la plantilla `novedades-destacada` de `plantillas.js`. El bloque del blog
+no está en este diseño.
