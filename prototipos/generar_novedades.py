@@ -26,8 +26,8 @@ N = dict(
 )
 
 # capturas de ejemplo: en la app, cada novedad sube la suya
-ENTORNO = embebida('capturas/entorno-calendario.png', 'image/png')
-MINIS = [embebida(f'capturas/mini-{n}.png', 'image/png') for n in ('cabecera', 'evento', 'semana')]
+ENTORNO = embebida('capturas/entorno-calendario.jpg', 'image/jpeg')
+MINIS = [embebida(f'capturas/mini-{n}.jpg', 'image/jpeg') for n in ('cabecera', 'evento', 'semana')]
 
 
 # ---- piezas

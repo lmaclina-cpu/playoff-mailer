@@ -395,7 +395,7 @@ def vfinal():
     <div style="height:22px;"></div>{p(D["sub"], mw=480)}
     <div style="height:30px;"></div>{boton(D["cta"], D["url"], align="left")}''', '64px 40px 0'))
     # 2 · imagen del entorno encima de la foto azul
-    c += imagen_sobre_imagen(F_HERO, embebida('capturas/entorno-calendario.png', 'image/png'))
+    c += imagen_sobre_imagen(F_HERO, embebida('capturas/entorno-calendario.jpg', 'image/jpeg'))
     # 3 · fila de datos (variante 5)
     datos = ''
     for k, v in (('Fecha', f'{D["dia"]} {D["mes"]}'), ('Hora', D['hora']), ('Duración', D['dur'])):
