@@ -12,6 +12,7 @@ N = dict(
     t1='Lo nuevo de Playoff,', t2='en 2 minutos.',
     sub='Un cambio protagonista, unas cuantas mejoras rápidas y alguna cosa más que merece la pena tener en el radar.',
     cta='Ver las novedades', url='https://playoffinformatica.com/',
+    modulo='Saber más de este módulo',
     dtag='La novedad del mes', dtit='Las nóminas ya forman parte de tu Time',
     dtxt='Sube el PDF del mes y Playoff reparte cada nómina a su trabajador. Cada persona se la descarga desde su acceso, sin pasar por administración. Incluido <b style="color:#0b0b0c;font-weight:500;">sin coste</b> para los clientes del módulo Time.',
     dcta='Ver cómo funciona', durl='https://playoffinformatica.com/',
@@ -43,11 +44,12 @@ def titular(size=56, align='left', color=INK, em=GRIS2, t1=None, t2=None, tag='h
             f'letter-spacing:-0.045em;text-align:{align};">{t1}<br><span style="color:{em};">{t2}</span></{tag}>')
 
 
-def portada(align='left'):
+def portada(align='left', con_boton=True):
     a = align
+    btn = f'<div style="height:30px;"></div>{boton(N["cta"], N["url"], align=a)}' if con_boton else ''
     return px(fila(f'''{cabecera(a)}<div style="height:18px;"></div>{titular(56, a)}
     <div style="height:22px;"></div>{p(N["sub"], m="0 auto" if a == "center" else "0", align=a, mw=470)}
-    <div style="height:30px;"></div>{boton(N["cta"], N["url"], align=a)}''', '64px 40px 0'))
+    {btn}''', '64px 40px 0'))
 
 
 def etiqueta(t, fondo='#eaf2ff', color='#0058c4'):
@@ -86,6 +88,15 @@ def promo_oscura():
     <div style="height:16px;"></div>{p(N["ptxt"], "#9aa0aa", 16, "0 auto", "center", 420)}
     <div style="height:28px;"></div>{boton(N["pcta"], N["purl"], oscuro=False)}
   </td></tr></table>''', '88px 0 0')
+
+
+def boton_azul(texto, url, align='left'):
+    """Botón de módulo: píldora azul Playoff, un poco más pequeño que el principal."""
+    m = '0 auto' if align == 'center' else '0'
+    return (f'<table role="presentation" cellpadding="0" cellspacing="0" style="margin:{m};"><tr><td>'
+            f'<a href="{url}" style="display:inline-block;background:#006bed;color:#ffffff;font-size:14px;font-weight:500;'
+            f'line-height:40px;height:40px;padding:0 18px;border-radius:999px;white-space:nowrap;">{texto}</a>'
+            f'</td></tr></table>')
 
 
 def plano(html):
@@ -211,10 +222,11 @@ def mini(src):
 
 def vfinal():
     # portada centrada (variante 2)
-    c = logo('center', '32px 0 0') + portada('center')
+    # sin botón: no hay página de novedades a la que llevar
+    c = logo('center', '32px 0 0') + portada('center', con_boton=False)
     # destacada en tarjeta gris con la captura apoyada abajo (variante 4)
     c += fila(f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="{SUAVE}" style="background:{SUAVE};border-radius:28px;">
-  <tr><td class="px" style="padding:44px 44px 32px;">{destacada_texto()}</td></tr>
+  <tr><td class="px" style="padding:44px 44px 32px;">{destacada_texto().replace(f'<p style="margin:0;text-align:left;">{enlace(N["dcta"], N["durl"])}</p>', boton_azul(N["modulo"], N["durl"]))}</td></tr>
   <tr><td class="encima" style="padding:0 44px;">{img(ENTORNO, 12, False).replace("border-radius:12px", "border-radius:12px 12px 0 0")}</td></tr></table>''', '56px 0 0')
     # y además: tres columnas con imágenes del mismo tamaño (variante 2)
     c += bloque_ademas('center')
@@ -222,12 +234,14 @@ def vfinal():
     for i, ((t, d), im) in enumerate(zip(N['items'], MINIS)):
         pad = '0 7px 0 0' if i == 0 else ('0 0 0 7px' if i == 2 else '0 3px')
         cols += f'''<td class="col" width="33%" valign="top" style="padding:{pad};">
-      {mini(im)}<div style="height:18px;"></div>{h3(t, 18)}<div style="height:8px;"></div>{p(d, size=15)}
-      <div style="height:12px;"></div>{enlace(N["icta"], N["iurl"])}<div style="height:32px;"></div></td>'''
+      {mini(im)}<div style="height:18px;"></div>
+      <div class="alto" style="height:150px;">{h3(t, 18)}<div style="height:8px;"></div>{p(d, size=15)}</div>
+      <div style="height:18px;"></div>{boton_azul(N["modulo"], N["iurl"])}<div style="height:32px;"></div></td>'''
     c += px(fila(f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>{cols}</tr></table>', '40px 0 0'))
     # cierre oscuro y pie (variante 2)
     c += promo_oscura().replace("'88px 0 0'", "'56px 0 0'")
-    return salida('Novedades · Final', c)
+    # en escritorio el texto tiene alto fijo para que los tres botones queden alineados
+    return salida('Novedades · Final', c).replace('.encima{', '.alto{height:auto!important}\n    .encima{')
 
 
 if __name__ == '__main__':

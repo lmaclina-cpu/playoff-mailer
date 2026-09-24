@@ -47,14 +47,18 @@ Las `novedades-v1…v5` fueron exploración. Mismo sistema que el webinar: plano
 
 ### Orden de bloques
 1. Logo centrado.
-2. Portada centrada: Novedades | mes, titular, frase y botón negro.
-3. **Destacada** en tarjeta gris `#f3f4f6` (esquinas de 28 px): etiqueta, titular, texto
-   y enlace. La captura va apoyada en el borde de abajo de la tarjeta.
+2. Portada centrada: Novedades | mes, titular y frase. **Sin botón**: no hay página de novedades a la que llevar.
+3. **Destacada** en tarjeta gris `#f3f4f6` (esquinas de 28 px): etiqueta, titular, texto,
+   botón azul y la captura apoyada en el borde de abajo de la tarjeta.
 4. "Y además" + titular centrado.
-5. **Tres mejoras en tres columnas** (se apilan en el móvil): imagen, título, texto y enlace.
+5. **Tres mejoras en tres columnas** (se apilan en el móvil): imagen, título, texto y botón.
    **Las tres imágenes tienen el mismo tamaño**: proporción 4:3. En la app se recortan a 4:3
    al subirlas, para que no descuadre aunque se suban capturas distintas.
 6. Banda oscura de Playoff Time y pie oscuro.
 
 Textos: los de la plantilla `novedades-destacada` de `plantillas.js`. El bloque del blog
 no está en este diseño.
+
+**Botones de módulo:** la destacada y cada mejora llevan un botón **"Saber más de este módulo"**
+en azul Playoff `#006bed` (píldora de 40 px). No hay enlaces de texto "Ver cómo funciona".
+En escritorio, el texto de cada mejora tiene alto fijo para que los tres botones queden alineados.
