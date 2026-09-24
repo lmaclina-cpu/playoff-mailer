@@ -367,6 +367,21 @@ def foto_con_ventana(fondo, captura):
   </td></tr></table>''', '48px 0 0')
 
 
+def imagen_sobre_imagen(fondo, encima):
+    """Dos imágenes: la de fondo (a sangre, esquinas redondeadas) y la del entorno encima,
+    apoyada en el borde de abajo. La de encima se sube tal cual; el email no le dibuja nada."""
+    return fila(f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+  <td background="{fondo}" bgcolor="#1d5fd6" valign="bottom"
+      style="background-color:#1d5fd6;background-image:url('{fondo}');background-size:cover;background-position:50% 50%;border-radius:28px;">
+  <!--[if gte mso 9]><v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:640px;height:420px;"><v:fill type="frame" src="{fondo}" color="#1d5fd6"/><v:textbox inset="0,0,0,0"><![endif]-->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td class="encima" style="padding:52px 40px 0;">
+        <img src="{encima}" width="560" alt="" style="width:100%;display:block;border-radius:12px 12px 0 0;box-shadow:0 24px 60px rgba(11,11,12,0.22);">
+      </td></tr></table>
+  <!--[if gte mso 9]></v:textbox></v:rect><![endif]-->
+  </td></tr></table>''', '48px 0 0')
+
+
 def px(html):
     return html.replace('<td style', '<td class="px" style', 1)
 
@@ -378,8 +393,8 @@ def vfinal():
     <div style="height:18px;"></div>{h1(56, align="left")}
     <div style="height:22px;"></div>{p(D["sub"], mw=480)}
     <div style="height:30px;"></div>{boton(D["cta"], D["url"], align="left")}''', '64px 40px 0'))
-    # 2 · foto azul con la ventana de la plataforma y la captura del tema del webinar
-    c += foto_con_ventana(F_HERO, embebida('capturas/calendario.png', 'image/png'))
+    # 2 · imagen del entorno encima de la foto azul
+    c += imagen_sobre_imagen(F_HERO, embebida('capturas/entorno-calendario.png', 'image/png'))
     # 3 · fila de datos (variante 5)
     datos = ''
     for k, v in (('Fecha', f'{D["dia"]} {D["mes"]}'), ('Hora', D['hora']), ('Duración', D['dur'])):
@@ -399,7 +414,7 @@ def vfinal():
     c += cierre_oscuro(False) + pie()
     html = doc('Webinar · Final', c)
     return html.replace('.solo-d{display:none!important}',
-                        '.solo-d{display:none!important}\n    .ventana{padding:28px 14px 0!important}')
+                        '.solo-d{display:none!important}\n    .encima{padding:28px 14px 0!important}')
 
 
 if __name__ == '__main__':
