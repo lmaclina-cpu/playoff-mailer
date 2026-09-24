@@ -17,6 +17,11 @@ create table if not exists public.envios (
 -- (la clave secreta se salta estas reglas; la pública no puede leer nada).
 alter table public.envios enable row level security;
 
+-- Permisos explícitos para la clave secreta de la app, por si el proyecto se creó
+-- sin "Automatically expose new tables" (lo recomendable).
+grant usage on schema public to service_role;
+grant select, insert, update, delete on public.envios to service_role;
+
 -- 2. Las imágenes de los correos: tienen que ser públicas para que se vean en Gmail,
 -- Outlook, etc. Solo la app puede subir (con la clave secreta).
 insert into storage.buckets (id, name, public)
