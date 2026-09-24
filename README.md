@@ -112,10 +112,13 @@ Con URL pública, cada envío pesa unos 10 KB.
 2. En [render.com](https://render.com), entra con la cuenta de GitHub.
 3. **New → Blueprint**, elige el repositorio `playoff-mailer`. Render lee
    `render.yaml` y monta el servicio solo.
-4. Rellena las tres variables que te pide:
-   - `BREVO_KEY` — la clave de la API de Brevo.
-   - `WP_USUARIO` — tu usuario de WordPress.
-   - `WP_CLAVE` — la contraseña de aplicación de WordPress.
+4. Rellena las variables que te pide:
+   - `BREVO_KEY` — la clave de la API de Brevo. **La única obligatoria.**
+   - `WP_USUARIO` y `WP_CLAVE` — usuario y contraseña de aplicación de WordPress.
+     Opcionales: si las pones, las imágenes van a la web de Playoff y los envíos se
+     guardan en WordPress. Si las dejas vacías, las imágenes van a la **biblioteca
+     de Brevo** (la app las publica un momento y Brevo las copia), pero los envíos
+     guardados se pierden cuando el servidor se reinicia (ver el paso 1).
 
    `SECRETO_SESION` la genera Render sola: es con lo que se firman las sesiones.
    Si algún día quieres echar a todo el mundo, cámbiala y listo.
@@ -124,6 +127,10 @@ Con URL pública, cada envío pesa unos 10 KB.
 A partir de ahí, quien tenga correo `@playoffinformatica.com` entra con su código.
 La clave de Brevo y las credenciales de la web quedan en el servidor: la app ya no
 las pide a nadie ni deja cambiarlas desde dentro.
+
+**Cambios después de publicarla**: cada vez que se sube un cambio a la rama `main`
+de GitHub, Render vuelve a desplegar la app solo, en un par de minutos. No hay que
+tocar nada en Render.
 
 **Del plan gratis de Render**: el servicio se duerme tras 15 minutos sin uso, así
 que la primera visita del día tarda medio minuto en cargar. Las siguientes van

@@ -37,6 +37,12 @@ SALIDA = os.path.join(CASA, 'html')
 WP = 'https://playoffinformatica.com/wp-json/wp/v2/media'
 WP_BASE = 'https://playoffinformatica.com/wp-json/wp/v2'
 PONENTES = os.path.join(AQUI, 'ponentes')
+# Imagenes que se publican desde la propia app cuando esta en internet (Render):
+# Brevo las copia a su biblioteca desde aqui. En Render la direccion llega sola.
+PUBLICAS = os.path.join(CASA, 'publicas')
+URL_PUBLICA = (os.environ.get('URL_PUBLICA') or os.environ.get('RENDER_EXTERNAL_URL') or '').rstrip('/')
+# Lo unico que se sirve sin sesion: la app y las fotos de ponentes.
+ESTATICOS = ('index.html', 'app.js', 'templates.js', 'templates-saas.js', 'plantillas.js')
 MAX_SUBIDA = 8 * 1024 * 1024      # lo que aceptamos del disco
 ANCHO_MAX = 1400                  # ancho al que reducimos antes de publicar
 ANCHO_MAX_ALFA = 760              # las figuras recortadas no necesitan tanto
@@ -51,7 +57,7 @@ MAX_INTENTOS = 5
 ABIERTAS = ('sesion', 'sesion/codigo', 'sesion/verificar', 'sesion/salir', 'brevo/estado')
 _codigos = {}   # correo -> {'codigo', 'expira', 'intentos'}
 
-for d in (CASA, BORRADORES, SALIDA):
+for d in (CASA, BORRADORES, SALIDA, PUBLICAS):
     os.makedirs(d, exist_ok=True)
 
 
@@ -376,6 +382,32 @@ def subir_a_wp(datos, nombre, tipo):
     return url_publica
 
 
+def subir_a_brevo(datos, nombre):
+    """Publica la imagen en esta misma app y le pide a Brevo que la copie a su
+    biblioteca (img.mailinblue.com), que es donde se queda para siempre."""
+    base, ext = os.path.splitext(nombre)
+    final = '%s-%s%s' % (slug(base)[:40] or 'imagen', uuid.uuid4().hex[:10], ext.lower() or '.jpg')
+    with open(os.path.join(PUBLICAS, final), 'wb') as f:
+        f.write(datos)
+    temporal = URL_PUBLICA + '/img/' + urllib.parse.quote(final)
+    r = brevo('/emailCampaigns/images', 'POST', {'imageUrl': temporal, 'name': final})
+    url_brevo = (r or {}).get('url') or (r or {}).get('imageUrl')
+    if not url_brevo:
+        raise RuntimeError('Brevo no ha devuelto la direccion de la imagen')
+    return url_brevo
+
+
+def subir_imagen(datos, nombre, tipo):
+    """A la web de Playoff si hay credenciales de WordPress; si no y la app esta en
+    internet, a la biblioteca de Brevo con la clave que ya tiene."""
+    cfg = leer_config()
+    if cfg.get('wp_usuario') and cfg.get('wp_clave'):
+        return subir_a_wp(datos, nombre, tipo)
+    if URL_PUBLICA and cfg.get('brevo_key'):
+        return subir_a_brevo(datos, nombre)
+    raise RuntimeError('todavia no has configurado la subida de imagenes a la web')
+
+
 # ---------------------------------------------------------------- almacen de envios
 # En el servidor el disco se borra en cada reinicio, asi que los envios viven en
 # WordPress, en un tipo de contenido privado (pm_envio). Si no esta disponible,
@@ -666,6 +698,7 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
     if ruta == 'web/estado' and metodo == 'GET':
         cfg = leer_config()
         return {'conectado': bool(cfg.get('wp_usuario') and cfg.get('wp_clave')),
+                'brevo_imagenes': bool(URL_PUBLICA and cfg.get('brevo_key')),
                 'usuario': cfg.get('wp_usuario') or '',
                 'fijado': config_fijada('wp_usuario'),
                 'almacen': 'web' if wp_almacen_listo() else 'disco'}
@@ -717,7 +750,7 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
             os.remove(temporal)
         except Exception:
             pass
-        url_publica = subir_a_wp(datos_img, nombre_final, tipo)
+        url_publica = subir_imagen(datos_img, nombre_final, tipo)
         return {'url': url_publica, 'kb': round(len(datos_img) / 1024.0, 1),
                 'original_kb': round(len(binario) / 1024.0, 1)}
 
@@ -749,7 +782,7 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
         if publicadas.get(nombre):
             return {'url': publicadas[nombre], 'reutilizada': True}
         datos_img, nombre_final, tipo = optimizar(origen)
-        url_publica = subir_a_wp(datos_img, nombre_final, tipo)
+        url_publica = subir_imagen(datos_img, nombre_final, tipo)
         publicadas[nombre] = url_publica
         cfg['ponentes_urls'] = publicadas
         escribir_config(cfg)
@@ -786,12 +819,22 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def _estatico(self, camino):
         if camino in ('', '/'):
             camino = '/index.html'
-        limpio = os.path.normpath(camino.lstrip('/'))
+        limpio = os.path.normpath(urllib.parse.unquote(camino).lstrip('/'))
         if limpio.startswith('..') or os.path.isabs(limpio):
             self._json(404, {'error': 'no encontrado'})
             return
-        destino = os.path.join(AQUI, limpio)
-        if not os.path.isfile(destino):
+        # Solo la app, las fotos de ponentes y las imagenes publicadas para Brevo.
+        # Nada mas: ni el codigo del servidor ni la carpeta .git.
+        carpeta, archivo = os.path.split(limpio)
+        if carpeta == '' and archivo in ESTATICOS:
+            destino = os.path.join(AQUI, archivo)
+        elif carpeta == 'ponentes' and re.search(r'\.(jpe?g|png|webp)$', archivo, re.I):
+            destino = os.path.join(PONENTES, archivo)
+        elif carpeta == 'img' and re.fullmatch(r'[\w.-]+\.(jpe?g|png|webp|gif)', archivo, re.I):
+            destino = os.path.join(PUBLICAS, archivo)
+        else:
+            destino = ''
+        if not destino or not os.path.isfile(destino):
             self._json(404, {'error': 'no encontrado'})
             return
         tipo = mimetypes.guess_type(destino)[0] or 'application/octet-stream'

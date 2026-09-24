@@ -693,6 +693,10 @@
         b.hidden = true;
         return;
       }
+      if (r.brevo_imagenes && !r.conectado) {
+        res.appendChild(el('div', 'note note-ok', 'No hace falta configurar nada: las imágenes que subas van a la biblioteca de Brevo. ' +
+          'Solo si prefieres que vayan a la web de Playoff, rellena esto.'));
+      }
       if (r.conectado) {
         res.appendChild(el('div', 'note note-ok', 'Ya configurada con el usuario ' + r.usuario + '. Si rellenas los campos, la sustituyes.'));
         iUser.value = r.usuario;
