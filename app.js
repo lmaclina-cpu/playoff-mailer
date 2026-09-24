@@ -693,6 +693,14 @@
         b.hidden = true;
         return;
       }
+      if (r.supabase) {
+        res.appendChild(el('div', 'note note-ok', 'No hace falta configurar nada: las imágenes que subas se guardan en el almacén del equipo (Supabase).'));
+        info.hidden = true;
+        iUser.parentNode.hidden = true;
+        iPass.parentNode.hidden = true;
+        b.hidden = true;
+        return;
+      }
       if (r.brevo_imagenes && !r.conectado) {
         res.appendChild(el('div', 'note note-ok', 'No hace falta configurar nada: las imágenes que subas van a la biblioteca de Brevo. ' +
           'Solo si prefieres que vayan a la web de Playoff, rellena esto.'));

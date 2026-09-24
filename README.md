@@ -26,9 +26,9 @@ no identificado: clic derecho sobre el archivo → *Abrir* → *Abrir*.
 **En el ordenador de cada uno**: doble clic en el lanzador, como se explica arriba.
 Cada persona con su clave y sus envíos.
 
-**Como web del equipo** (recomendado si sois varios): desplegada en un servidor,
-con un enlace que abre cualquiera. La configuración la pone el administrador una
-sola vez y los envíos guardados son comunes. Ver *Ponerla en internet*.
+**Como web del equipo** (recomendado si sois varios): desplegada en Render, con un
+enlace que abre cualquiera. La configuración la pone el administrador una sola vez
+y los envíos guardados son comunes (viven en Supabase). Ver *Ponerla en internet*.
 
 ## Entrar
 
@@ -102,31 +102,38 @@ Las plantillas originales llevaban las fotos en base64 dentro del HTML y pesaban
 y se pierde el final, seguimiento incluido) y descarta las imágenes incrustadas.
 Con URL pública, cada envío pesa unos 10 KB.
 
-## Ponerla en internet (Render)
+## Ponerla en internet (Render + Supabase)
 
-1. **Antes de nada, el almacén de envíos.** En WordPress, con Code Snippets, pega
-   el contenido de `wordpress-snippet.php` y actívalo. Crea un tipo de contenido
-   privado donde la app guarda los envíos del equipo. Sin esto la app funciona,
-   pero los envíos guardados se pierden cada vez que el servidor se reinicia, y
-   avisa de ello en la portada.
-2. En [render.com](https://render.com), entra con la cuenta de GitHub.
-3. **New → Blueprint**, elige el repositorio `playoff-mailer`. Render lee
+Todo gratis. **Render** tiene la app en marcha; **Supabase** guarda los envíos del
+equipo y las imágenes de los correos (el disco de Render se borra en cada reinicio,
+por eso hace falta). No depende de WordPress.
+
+**1. Supabase (una vez, 5 minutos)**
+1. En [supabase.com](https://supabase.com), crea una cuenta y un proyecto nuevo
+   (región: Europa). Guarda la contraseña de la base de datos, aunque la app no la usa.
+2. **SQL Editor → New query**: pega el contenido de `supabase.sql` y dale a **Run**.
+   Crea la tabla de envíos y el almacén público `imagenes`.
+3. **Project Settings → API** (o *API Keys*): copia
+   - la **Project URL** (`https://xxxx.supabase.co`) → será `SUPABASE_URL`;
+   - la clave **secreta** (`service_role` o `sb_secret_…`) → será `SUPABASE_KEY`.
+   Esa clave es como una contraseña: solo va en Render, nunca en el código ni en un chat.
+
+**2. Render**
+1. En [render.com](https://render.com), entra con la cuenta de GitHub.
+2. **New → Blueprint**, elige el repositorio `playoff-mailer`. Render lee
    `render.yaml` y monta el servicio solo.
-4. Rellena las variables que te pide:
-   - `BREVO_KEY` — la clave de la API de Brevo. **La única obligatoria.**
-   - `WP_USUARIO` y `WP_CLAVE` — usuario y contraseña de aplicación de WordPress.
-     Opcionales: si las pones, las imágenes van a la web de Playoff y los envíos se
-     guardan en WordPress. Si las dejas vacías, las imágenes van a la **biblioteca
-     de Brevo** (la app las publica un momento y Brevo las copia), pero los envíos
-     guardados se pierden cuando el servidor se reinicia (ver el paso 1).
-
-   `SECRETO_SESION` la genera Render sola: es con lo que se firman las sesiones.
-   Si algún día quieres echar a todo el mundo, cámbiala y listo.
-5. Deploy. El enlace queda tipo `playoff-mailer.onrender.com`.
+3. Rellena las variables: `BREVO_KEY`, `SUPABASE_URL` y `SUPABASE_KEY`.
+   `SECRETO_SESION` la genera Render sola.
+4. Deploy. El enlace queda tipo `playoff-mailer.onrender.com`.
 
 A partir de ahí, quien tenga correo `@playoffinformatica.com` entra con su código.
-La clave de Brevo y las credenciales de la web quedan en el servidor: la app ya no
-las pide a nadie ni deja cambiarlas desde dentro.
+Las claves quedan en el servidor: la app no las pide a nadie.
+
+**3. Que Supabase no se duerma (recomendado)**
+El plan gratis de Supabase pausa el proyecto tras una semana sin uso. En GitHub,
+**Settings → Secrets and variables → Actions → New repository secret**, crea
+`SUPABASE_URL` y `SUPABASE_KEY` (los mismos valores). El archivo
+`.github/workflows/supabase-despierto.yml` le hace una consulta al día y lo mantiene activo.
 
 **Cambios después de publicarla**: cada vez que se sube un cambio a la rama `main`
 de GitHub, Render vuelve a desplegar la app solo, en un par de minutos. No hay que
@@ -134,7 +141,7 @@ tocar nada en Render.
 
 **Del plan gratis de Render**: el servicio se duerme tras 15 minutos sin uso, así
 que la primera visita del día tarda medio minuto en cargar. Las siguientes van
-normales.
+normales. Los envíos y las imágenes no se pierden: están en Supabase.
 
 ## Ficheros
 

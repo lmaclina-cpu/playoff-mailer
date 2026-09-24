@@ -41,6 +41,12 @@ PONENTES = os.path.join(AQUI, 'ponentes')
 # Brevo las copia a su biblioteca desde aqui. En Render la direccion llega sola.
 PUBLICAS = os.path.join(CASA, 'publicas')
 URL_PUBLICA = (os.environ.get('URL_PUBLICA') or os.environ.get('RENDER_EXTERNAL_URL') or '').rstrip('/')
+# Supabase: donde viven los borradores y las imagenes cuando la app esta en internet.
+# Se configura con dos variables de entorno (ver README, "Ponerla en internet").
+SUPABASE_URL = (os.environ.get('SUPABASE_URL') or '').rstrip('/')
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY') or ''
+SUPABASE_TABLA = 'envios'
+SUPABASE_BUCKET = 'imagenes'
 # Lo unico que se sirve sin sesion: la app y las fotos de ponentes.
 ESTATICOS = ('index.html', 'app.js', 'templates.js', 'templates-saas.js', 'plantillas.js')
 MAX_SUBIDA = 8 * 1024 * 1024      # lo que aceptamos del disco
@@ -401,11 +407,92 @@ def subir_imagen(datos, nombre, tipo):
     """A la web de Playoff si hay credenciales de WordPress; si no y la app esta en
     internet, a la biblioteca de Brevo con la clave que ya tiene."""
     cfg = leer_config()
+    if supabase_listo():
+        return subir_a_supabase(datos, nombre, tipo)
     if cfg.get('wp_usuario') and cfg.get('wp_clave'):
         return subir_a_wp(datos, nombre, tipo)
     if URL_PUBLICA and cfg.get('brevo_key'):
         return subir_a_brevo(datos, nombre)
     raise RuntimeError('todavia no has configurado la subida de imagenes a la web')
+
+
+# ---------------------------------------------------------------- supabase
+def supabase_listo():
+    return bool(SUPABASE_URL and SUPABASE_KEY)
+
+
+def sb_cabeceras(extra=None):
+    cab = {'apikey': SUPABASE_KEY}
+    # Las claves antiguas (JWT) van tambien como Bearer; las nuevas (sb_secret_...) no.
+    if not SUPABASE_KEY.startswith('sb_'):
+        cab['Authorization'] = 'Bearer ' + SUPABASE_KEY
+    cab.update(extra or {})
+    return cab
+
+
+def sb_error(estado, datos, que):
+    msg = (datos or {}).get('message') or (datos or {}).get('error') or ('error %s' % estado)
+    if estado in (401, 403):
+        msg = 'Supabase no acepta la clave (revisa SUPABASE_KEY)'
+    elif estado == 404 or 'does not exist' in str(msg) or 'Bucket not found' in str(msg):
+        msg = 'falta preparar Supabase: pega supabase.sql en su SQL Editor'
+    return RuntimeError('no he podido %s: %s' % (que, msg))
+
+
+def sb_listar():
+    url = (SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLA +
+           '?select=id,nombre,plantilla_id,guardado,autor,editado_por&order=guardado.desc&limit=200')
+    estado, datos = pedir(url, 'GET', sb_cabeceras())
+    if estado >= 400 or not isinstance(datos, list):
+        raise sb_error(estado, datos if isinstance(datos, dict) else {}, 'leer los envios guardados')
+    return [{'id': d.get('id'), 'nombre': d.get('nombre') or '', 'plantillaId': d.get('plantilla_id'),
+             'guardado': d.get('guardado') or '', 'autor': d.get('autor') or '',
+             'editado_por': d.get('editado_por') or ''} for d in datos]
+
+
+def sb_leer(bid):
+    url = (SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLA + '?select=doc&id=eq.' +
+           urllib.parse.quote(bid, safe=''))
+    estado, datos = pedir(url, 'GET', sb_cabeceras())
+    if estado >= 400 or not isinstance(datos, list):
+        raise sb_error(estado, datos if isinstance(datos, dict) else {}, 'abrir el envio')
+    if not datos:
+        raise RuntimeError('ese envio ya no esta')
+    doc = datos[0].get('doc') or {}
+    doc['id'] = bid
+    return doc
+
+
+def sb_guardar(doc):
+    fila = {'id': doc['id'], 'nombre': doc.get('nombre') or '', 'plantilla_id': doc.get('plantillaId') or '',
+            'guardado': doc.get('guardado') or '', 'autor': doc.get('autor') or '',
+            'editado_por': doc.get('editado_por') or '', 'doc': doc}
+    estado, datos = pedir(SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLA + '?on_conflict=id', 'POST',
+                          sb_cabeceras({'Prefer': 'resolution=merge-duplicates,return=minimal'}), fila)
+    if estado >= 400:
+        raise sb_error(estado, datos, 'guardar el envio')
+    return doc['id']
+
+
+def sb_borrar(bid):
+    url = SUPABASE_URL + '/rest/v1/' + SUPABASE_TABLA + '?id=eq.' + urllib.parse.quote(bid, safe='')
+    estado, datos = pedir(url, 'DELETE', sb_cabeceras())
+    if estado >= 400:
+        raise sb_error(estado, datos, 'borrar el envio')
+    return True
+
+
+def subir_a_supabase(datos, nombre, tipo):
+    """Al almacen publico de Supabase. La URL que devuelve es permanente."""
+    base, ext = os.path.splitext(nombre)
+    final = '%s/%s-%s%s' % (time.strftime('%Y-%m'), slug(base)[:40] or 'imagen',
+                            uuid.uuid4().hex[:10], ext.lower() or '.jpg')
+    url = SUPABASE_URL + '/storage/v1/object/' + SUPABASE_BUCKET + '/' + final
+    estado, cuerpo = pedir_binario(url, datos, sb_cabeceras({'Content-Type': tipo, 'x-upsert': 'true',
+                                                              'Cache-Control': 'max-age=31536000'}))
+    if estado >= 400:
+        raise sb_error(estado, cuerpo, 'subir la imagen')
+    return SUPABASE_URL + '/storage/v1/object/public/' + SUPABASE_BUCKET + '/' + final
 
 
 # ---------------------------------------------------------------- almacen de envios
@@ -554,6 +641,8 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
 
     # --- borradores
     if ruta == 'borradores' and metodo == 'GET':
+        if supabase_listo():
+            return {'borradores': sb_listar(), 'almacen': 'supabase'}
         if wp_almacen_listo():
             return {'borradores': wp_listar(), 'almacen': 'web'}
         return {'borradores': listar_borradores(), 'almacen': 'disco',
@@ -565,7 +654,14 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
         if str(bid).startswith('wp-') and not wp_almacen_listo():
             bid = slug(cuerpo.get('nombre')) + '-' + uuid.uuid4().hex[:6]
         previo = {}
-        if str(cuerpo.get('id') or '').startswith('wp-'):
+        if supabase_listo():
+            if not cuerpo.get('id'):
+                bid = 'sb-' + bid
+            try:
+                previo = sb_leer(bid) if cuerpo.get('id') else {}
+            except Exception:
+                previo = {}
+        elif str(cuerpo.get('id') or '').startswith('wp-'):
             try:
                 previo = wp_leer(cuerpo['id'])
             except Exception:
@@ -581,6 +677,8 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
                'autor': previo.get('autor') or correo or '',
                'editado_por': correo or '',
                'guardado': time.strftime('%Y-%m-%dT%H:%M:%S')}
+        if supabase_listo():
+            return {'id': sb_guardar(doc)}
         if wp_almacen_listo():
             return {'id': wp_guardar(cuerpo.get('id'), doc)}
         with open(ruta_borrador(bid), 'w', encoding='utf-8') as f:
@@ -590,6 +688,9 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
     m = re.fullmatch(r'borradores/([^/]+)/borrar', ruta)
     if m and metodo == 'POST':
         cual = urllib.parse.unquote(m.group(1))
+        if supabase_listo():
+            sb_borrar(cual)
+            return {'ok': True}
         if cual.startswith('wp-'):
             wp_borrar(cual)
             return {'ok': True}
@@ -601,6 +702,8 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
     m = re.fullmatch(r'borradores/([^/]+)', ruta)
     if m and metodo == 'GET':
         cual = urllib.parse.unquote(m.group(1))
+        if supabase_listo():
+            return sb_leer(cual)
         if cual.startswith('wp-'):
             return wp_leer(cual)
         with open(ruta_borrador(cual), 'r', encoding='utf-8') as f:
@@ -699,9 +802,10 @@ def api(ruta, consulta, cuerpo, metodo, correo=None):
         cfg = leer_config()
         return {'conectado': bool(cfg.get('wp_usuario') and cfg.get('wp_clave')),
                 'brevo_imagenes': bool(URL_PUBLICA and cfg.get('brevo_key')),
+                'supabase': supabase_listo(),
                 'usuario': cfg.get('wp_usuario') or '',
                 'fijado': config_fijada('wp_usuario'),
-                'almacen': 'web' if wp_almacen_listo() else 'disco'}
+                'almacen': 'supabase' if supabase_listo() else ('web' if wp_almacen_listo() else 'disco')}
 
     if ruta == 'web/credenciales' and metodo == 'POST':
         if config_fijada('wp_usuario'):
