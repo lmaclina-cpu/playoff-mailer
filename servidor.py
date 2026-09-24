@@ -43,8 +43,8 @@ PUBLICAS = os.path.join(CASA, 'publicas')
 URL_PUBLICA = (os.environ.get('URL_PUBLICA') or os.environ.get('RENDER_EXTERNAL_URL') or '').rstrip('/')
 # Supabase: donde viven los borradores y las imagenes cuando la app esta en internet.
 # Se configura con dos variables de entorno (ver README, "Ponerla en internet").
-SUPABASE_URL = (os.environ.get('SUPABASE_URL') or '').rstrip('/')
-SUPABASE_KEY = os.environ.get('SUPABASE_KEY') or ''
+SUPABASE_URL = (os.environ.get('SUPABASE_URL') or '').strip().rstrip('/')
+SUPABASE_KEY = (os.environ.get('SUPABASE_KEY') or '').strip()
 SUPABASE_TABLA = 'envios'
 SUPABASE_BUCKET = 'imagenes'
 # Lo unico que se sirve sin sesion: la app y las fotos de ponentes.
@@ -79,8 +79,8 @@ def leer_config():
         datos = {}
     for clave, variable in (('brevo_key', 'BREVO_KEY'), ('wp_usuario', 'WP_USUARIO'),
                             ('wp_clave', 'WP_CLAVE')):
-        if os.environ.get(variable):
-            datos[clave] = os.environ[variable]
+        if (os.environ.get(variable) or '').strip():
+            datos[clave] = os.environ[variable].strip()
     if os.environ.get('BREVO_CUENTA'):
         datos['brevo_cuenta'] = os.environ['BREVO_CUENTA']
     return datos
