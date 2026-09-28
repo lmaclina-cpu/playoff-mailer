@@ -68,7 +68,11 @@ clave desde Brevo.
    En las plantillas de webinar, el campo *Foto del ponente* tiene además las
    **caras de siempre** debajo: un clic y se pone. La primera vez que usas una, se
    publica sola en la web y ya se queda guardada para las próximas.
-4. **Mandar a Brevo** → eliges remitente y lista → se crea la campaña en borrador.
+4. En las plantillas de **Novedades** los bloques son modulares: las destacadas,
+   las mejoras rápidas y las alternadas son listas. Con **+ Añadir**, ✕ y las
+   flechas decides cuántas lleva cada envío (dos destacadas y seis mejoras, una y
+   cinco, ninguna…). Las mejoras se colocan solas en filas; un bloque vacío no sale.
+5. **Mandar a Brevo** → eliges remitente y lista → se crea la campaña en borrador.
    No se envía nada: el asunto definitivo, la lista y la hora los terminas en Brevo.
 
 Los envíos se guardan solos en `~/.playoff-mailer/borradores/` y salen en la

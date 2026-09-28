@@ -45,6 +45,34 @@
   var AYUDA_GRIS = 'Lo que pongas entre asteriscos (*así*) sale en gris: es el énfasis de este diseño. El salto de línea se respeta.';
   var MODULO = 'Saber más de este módulo';
 
+  /* Novedades modulares: las destacadas son una lista como las mejoras, así cada envío
+     lleva las que toquen (una, dos, ninguna…) sin cambiar de plantilla. */
+  var NOTA_MODULOS = 'Añade, quita y ordena las que necesites este mes.';
+  function listaDestacadas(max, def, conBoton, ayudaTitulo) {
+    return { k: 'destacadas', label: 'Destacadas', type: 'lista', max: max, help: NOTA_MODULOS + ' Con ninguna, el bloque desaparece.',
+      item: [
+        { k: 'tag', label: 'Etiqueta', type: 'text', max: 26, def: 'La novedad del mes' },
+        { k: 't', label: 'Titular', type: 'textarea', rows: 2, max: 80, help: ayudaTitulo },
+        { k: 'd', label: 'Explicación', type: 'textarea', rows: 4, help: 'Lo que pongas entre **dos asteriscos** sale en negro.' },
+        { k: 'img', label: 'Captura', type: 'image', help: 'Horizontal. Va apoyada en el borde de abajo de la tarjeta gris.' },
+        { k: 'cta', label: conBoton ? 'Botón' : 'Texto del enlace', type: 'text', max: 28, def: conBoton ? MODULO : 'Ver cómo funciona' },
+        { k: 'ctaUrl', label: conBoton ? 'Enlace del botón' : 'URL', type: 'url', def: 'https://playoffinformatica.com/' }
+      ],
+      def: def };
+  }
+  var DEST_EJEMPLO = { tag: 'La novedad del mes', t: 'Las nóminas ya forman parte de tu Time',
+    d: 'Sube el PDF del mes y Playoff reparte cada nómina a su trabajador. Cada persona se la descarga desde su acceso, sin pasar por administración. Incluido **sin coste** para los clientes del módulo Time.',
+    ctaUrl: 'https://playoffinformatica.com/' };
+  function destEjemplo(cta) { var o = JSON.parse(JSON.stringify(DEST_EJEMPLO)); o.cta = cta; return [o]; }
+  /* Borradores de antes de las destacadas en lista: la única destacada pasa a ser la primera. */
+  function migrarDestacada(d, guardados) {
+    if (Array.isArray(guardados.destacadas)) return;
+    var g = guardados;
+    d.destacadas = (g.destTitulo || g.destTexto || g.destImg)
+      ? [{ tag: g.destTag || '', t: g.destTitulo || '', d: g.destTexto || '', img: g.destImg || '', cta: g.destCta || '', ctaUrl: g.destUrl || '' }]
+      : [];
+  }
+
   /* ==================== WEBINAR · DISEÑO WEB (el aprobado) ==================== */
   T.push({
     id: 'webinar-web',
@@ -172,7 +200,7 @@
     familia: 'Novedades',
     nombre: 'Novedades · diseño web',
     nuevo: true,
-    tagline: 'El diseño de la web nueva: una novedad destacada en tarjeta gris y tres mejoras en columnas.',
+    tagline: 'El diseño de la web nueva: destacadas en tarjeta gris y mejoras en columnas de tres. Tú eliges cuántas de cada.',
     grupos: [
       { titulo: 'Portada', campos: [
         PRE,
@@ -183,27 +211,20 @@
         { k: 'subtitular', label: 'Frase de apoyo', type: 'textarea', rows: 3, max: 200,
           def: 'Un cambio protagonista, unas cuantas mejoras rápidas y alguna cosa más que merece la pena tener en el radar.' }
       ] },
-      { titulo: 'La novedad destacada', campos: [
-        { k: 'destTag', label: 'Etiqueta', type: 'text', max: 26, def: 'La novedad del mes' },
-        { k: 'destTitulo', label: 'Titular', type: 'textarea', rows: 2, max: 80, def: 'Las nóminas ya forman parte de tu Time' },
-        { k: 'destTexto', label: 'Explicación', type: 'textarea', rows: 4,
-          def: 'Sube el PDF del mes y Playoff reparte cada nómina a su trabajador. Cada persona se la descarga desde su acceso, sin pasar por administración. Incluido **sin coste** para los clientes del módulo Time.',
-          help: 'Lo que pongas entre **dos asteriscos** sale en negro.' },
-        { k: 'destImg', label: 'Captura', type: 'image', ancho: 1200, requerida: true,
-          help: 'Horizontal. Va apoyada en el borde de abajo de la tarjeta gris.' },
-        { k: 'destCta', label: 'Botón', type: 'text', max: 28, def: MODULO },
-        { k: 'destUrl', label: 'Enlace del botón', type: 'url', def: 'https://playoffinformatica.com/' }
+      { titulo: 'Novedades destacadas', campos: [
+        listaDestacadas(4, destEjemplo(MODULO), true)
       ] },
       { titulo: 'Y además', campos: [
         { k: 'masKicker', label: 'Antetítulo', type: 'text', max: 30, def: 'Y además' },
         { k: 'masTitulo', label: 'Titular del bloque', type: 'textarea', rows: 2, max: 80,
           def: 'Mejoras pequeñas.\n*Pero muy de agradecer.*', help: AYUDA_GRIS },
-        { k: 'items', label: 'Mejoras', type: 'lista', max: 3,
+        { k: 'items', label: 'Mejoras', type: 'lista', max: 12,
+          help: NOTA_MODULOS + ' Van de tres en tres por fila.',
           item: [
             { k: 't', label: 'Título', type: 'text', max: 40 },
             { k: 'd', label: 'Explicación', type: 'textarea', rows: 2, max: 110 },
             { k: 'img', label: 'Imagen', type: 'image', proporcion: '4:3',
-              help: 'Al subirla se recorta a 4:3 (desde el centro), así las tres miden igual.' },
+              help: 'Al subirla se recorta a 4:3 (desde el centro), así todas miden igual.' },
             { k: 'cta', label: 'Texto del enlace', type: 'text', max: 28, def: MODULO },
             { k: 'ctaUrl', label: 'URL', type: 'url' }
           ],
@@ -223,6 +244,7 @@
       ] },
       marca(null, true)
     ],
+    migrar: migrarDestacada,
     render: function (d) {
       var h = W.head(String(d.titular || 'Novedades Playoff').replace(/[*\n]/g, ' '), d.preheader || d.subtitular);
       h += W.logo(d, 'center');
@@ -230,35 +252,43 @@
       h += W.fila(W.antetitulo(d.eyebrow, d.mes, 'center') + W.hueco(18) + W.h1(d.titular, 'center') +
         (d.subtitular ? W.hueco(22) + W.parrafo(d.subtitular, { m: '0 auto', align: 'center', mw: 470 }) : ''), '64px 40px 0', true);
 
-      if (d.destTitulo || d.destTexto) {
-        var captura = d.destImg
-          ? '<tr><td class="encima" style="padding:0 44px;"><img src="' + E.url(d.destImg) + '" width="552" alt="" style="width:100%;display:block;border-radius:12px 12px 0 0;"></td></tr>'
+      W.lista(d, 'destacadas').forEach(function (it, i) {
+        var captura = it.img
+          ? '<tr><td class="encima" style="padding:0 44px;"><img src="' + E.url(it.img) + '" width="552" alt="" style="width:100%;display:block;border-radius:12px 12px 0 0;"></td></tr>'
           : (E.enVista() ? '<tr><td style="padding:0 44px 44px;">' + E.falta(240, 'Falta la captura') + '</td></tr>' : '');
         h += W.fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="' + W.C.suave + '" style="background:' + W.C.suave + ';border-radius:28px;">' +
-          '<tr><td class="px" style="padding:44px 44px ' + (captura ? 32 : 44) + 'px;">' + W.etiqueta(d.destTag) + W.hueco(16) + W.h3(d.destTitulo || '', 34) +
-          (d.destTexto ? W.hueco(14) + W.parrafo(d.destTexto) : '') +
-          (d.destCta ? W.hueco(20) + W.boton(d.destCta, d.destUrl, { azul: true }) : '') + '</td></tr>' + captura + '</table>', '56px 0 0');
-      }
+          '<tr><td class="px" style="padding:44px 44px ' + (captura ? 32 : 44) + 'px;">' + (it.tag ? W.etiqueta(it.tag) + W.hueco(16) : '') + W.h3(it.t || '', 34) +
+          (it.d ? W.hueco(14) + W.parrafo(it.d) : '') +
+          (it.cta ? W.hueco(20) + W.boton(it.cta, it.ctaUrl, { azul: true }) : '') + '</td></tr>' + captura + '</table>', (i ? '24px' : '56px') + ' 0 0');
+      });
 
-      var its = W.lista(d, 'items').slice(0, 3);
+      var its = W.lista(d, 'items');
       if (its.length) {
         h += W.fila('<p style="margin:0;color:' + W.C.gris + ';font-size:15px;text-align:center;">' + E.esc(d.masKicker || '') + '</p>' +
           W.hueco(12) + W.h2(d.masTitulo || '', 'center', 40), '88px 40px 0', true);
-        var n = its.length;
+        // Filas de tres. Con más de tres, todas las filas mantienen tres columnas para que cuadren.
+        var porFila = Math.min(3, its.length);
         var conImg = its.some(function (it) { return it.img; });
-        var cols = its.map(function (it, i) {
-          var pad = n === 1 ? '0' : (i === 0 ? '0 7px 0 0' : (i === n - 1 ? '0 0 0 7px' : '0 3px'));
+        var celda = function (it, i) {
+          var pad = porFila === 1 ? '0' : (i === 0 ? '0 7px 0 0' : (i === porFila - 1 ? '0 0 0 7px' : '0 3px'));
+          if (!it) return '<td class="col" width="' + Math.floor(100 / porFila) + '%" style="padding:' + pad + ';"></td>';
           var imagen = it.img
             ? '<img src="' + E.url(it.img) + '" width="196" alt="" style="width:100%;height:auto;display:block;border-radius:14px;border:1px solid ' + W.C.linea + ';">' + W.hueco(18)
             : (E.enVista() ? E.falta(147, 'Falta la imagen', 14) + W.hueco(18)
               : (conImg ? '<div style="border-radius:14px;background:' + W.C.suave + ';height:147px;"></div>' + W.hueco(18) : ''));
-          // En escritorio el texto tiene alto fijo para que los tres enlaces queden alineados.
-          return '<td class="col" width="' + Math.floor(100 / n) + '%" valign="top" style="padding:' + pad + ';">' + imagen +
+          // En escritorio el texto tiene alto fijo para que los enlaces de una fila queden alineados.
+          return '<td class="col" width="' + Math.floor(100 / porFila) + '%" valign="top" style="padding:' + pad + ';">' + imagen +
             '<div class="alto" style="height:150px;">' + W.h3(it.t || '', 18) +
             (it.d ? W.hueco(8) + W.parrafo(it.d, { size: 15 }) : '') + '</div>' +
             (it.cta ? W.hueco(14) + W.enlaceAzul(it.cta, it.ctaUrl) : '') + W.hueco(32) + '</td>';
-        }).join('');
-        h += W.fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' + cols + '</tr></table>', '40px 0 0', true);
+        };
+        var filas = '';
+        for (var f = 0; f < its.length; f += porFila) {
+          var cols = '';
+          for (var c = 0; c < porFila; c++) cols += celda(its[f + c], c);
+          filas += '<tr>' + cols + '</tr>';
+        }
+        h += W.fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0">' + filas + '</table>', '40px 0 0', true);
       }
 
       if (d.promoTitulo) {
@@ -441,8 +471,8 @@
   T.push({
     id: 'novedades-destacada',
     familia: 'Novedades',
-    nombre: 'Una destacada y varias rápidas',
-    tagline: 'El envío mensual: la novedad del mes en grande y el resto en rejilla.',
+    nombre: 'Destacadas y rápidas',
+    tagline: 'El envío mensual: las novedades grandes en tarjeta y el resto en rejilla. Tú eliges cuántas de cada.',
     grupos: [
       { titulo: 'Portada', campos: [
         PRE,
@@ -454,19 +484,14 @@
         { k: 'ctaTexto', label: 'Botón', type: 'text', max: 24, def: 'Ver las novedades' },
         { k: 'ctaUrl', label: 'Enlace', type: 'url', def: 'https://playoffinformatica.com/' }
       ] },
-      { titulo: 'La novedad del mes', campos: [
-        { k: 'destTag', label: 'Etiqueta', type: 'text', max: 26, def: 'La novedad del mes' },
-        { k: 'destTitulo', label: 'Titular', type: 'textarea', rows: 2, max: 80, def: 'Las nóminas ya forman parte de tu Time' },
-        { k: 'destImg', label: 'Captura', type: 'image', help: 'Horizontal. Súbela desde el ordenador (máximo 8 MB): la app la reduce a 1400 px y la pasa a JPG para que el correo no engorde.' },
-        { k: 'destTexto', label: 'Explicación', type: 'textarea', rows: 4,
-          def: 'Sube el PDF del mes y Playoff reparte cada nómina a su trabajador. Cada persona se la descarga desde su acceso, sin pasar por administración. Incluido **sin coste** para los clientes del módulo Time.' },
-        { k: 'destCta', label: 'Texto del enlace', type: 'text', max: 26, def: 'Ver cómo funciona' },
-        { k: 'destUrl', label: 'URL', type: 'url', def: 'https://playoffinformatica.com/' }
+      { titulo: 'Novedades destacadas', campos: [
+        listaDestacadas(4, destEjemplo('Ver cómo funciona'), false)
       ] },
       { titulo: 'Y además', campos: [
         { k: 'masKicker', label: 'Antetítulo', type: 'text', max: 30, def: 'Y además' },
         { k: 'masTitulo', label: 'Titular del bloque', type: 'textarea', rows: 2, max: 80, def: 'Mejoras pequeñas.\n**Pero muy de agradecer.**' },
-        { k: 'items', label: 'Mejoras', type: 'lista', max: 6,
+        { k: 'items', label: 'Mejoras', type: 'lista', max: 12,
+          help: NOTA_MODULOS + ' Van de dos en dos por fila.',
           item: [
             { k: 't', label: 'Título', type: 'text', max: 54 },
             { k: 'd', label: 'Explicación', type: 'textarea', rows: 2, max: 170 },
@@ -505,6 +530,7 @@
       ] },
       marca()
     ],
+    migrar: migrarDestacada,
     render: function (d) {
       var h = E.head(String(d.titular || 'Novedades Playoff').replace(/[*\n]/g, ' '), d.preheader || d.subtitular);
       h += E.logo(d, true, 'hero');
@@ -513,8 +539,9 @@
         (d.subtitular ? '<p class="lede">' + E.marca(d.subtitular) + '</p>' : '') +
         E.gap(24) + E.btn(d.ctaTexto, d.ctaUrl),
         { top: 30, bottom: 40, align: 'center', fondo: 'hero' });
-      h += E.seccion(E.tarjetaGrande({ tag: d.destTag, t: d.destTitulo, d: d.destTexto, img: d.destImg, cta: d.destCta, ctaUrl: d.destUrl }),
-        { top: 36, bottom: 6 });
+      E.list(d, 'destacadas').forEach(function (it, i) {
+        h += E.seccion(E.tarjetaGrande(it), { top: i ? 20 : 36, bottom: 6 });
+      });
       var its = E.list(d, 'items');
       if (its.length) {
         h += E.seccion(E.kicker(d.masKicker) + E.gap(10) + E.h2(d.masTitulo), { top: 40, bottom: 24 });
@@ -531,8 +558,8 @@
   T.push({
     id: 'novedades-alternadas',
     familia: 'Novedades',
-    nombre: 'Tres novedades alternadas',
-    tagline: 'Tres cambios del mismo peso, con captura a izquierda y derecha.',
+    nombre: 'Novedades alternadas',
+    tagline: 'Cambios del mismo peso con captura a izquierda y derecha. Se le pueden sumar destacadas y mejoras rápidas.',
     grupos: [
       { titulo: 'Portada', campos: [
         PRE,
@@ -541,8 +568,12 @@
         { k: 'subtitular', label: 'Frase de apoyo', type: 'textarea', rows: 3, max: 200,
           def: 'Nada que tengas que instalar ni configurar: ya está en tu Playoff desde esta semana.' }
       ] },
-      { titulo: 'Novedades', campos: [
-        { k: 'items', label: 'Novedades', type: 'lista', max: 5,
+      { titulo: 'Novedades destacadas', campos: [
+        listaDestacadas(4, [], false)
+      ] },
+      { titulo: 'Novedades alternadas', campos: [
+        { k: 'items', label: 'Novedades', type: 'lista', max: 10,
+          help: NOTA_MODULOS + ' La captura cambia de lado en cada una.',
           item: [
             { k: 'tag', label: 'Módulo', type: 'text', max: 22 },
             { k: 't', label: 'Titular', type: 'text', max: 60 },
@@ -557,6 +588,20 @@
             { tag: 'Cuotas', t: 'Avisos de impago automáticos', d: 'Cuando una remesa vuelve, el recibo queda marcado y sale el aviso al socio sin que tengas que revisarlo.', cta: 'Ver cómo funciona', ctaUrl: 'https://playoffinformatica.com/' }
           ] }
       ] },
+      { titulo: 'Mejoras rápidas', campos: [
+        { k: 'masKicker', label: 'Antetítulo', type: 'text', max: 30, def: 'Y además' },
+        { k: 'masTitulo', label: 'Titular del bloque', type: 'textarea', rows: 2, max: 80, def: 'Mejoras pequeñas.\n**Pero muy de agradecer.**' },
+        { k: 'rapidas', label: 'Mejoras', type: 'lista', max: 12,
+          help: NOTA_MODULOS + ' Van de dos en dos por fila. Sin ninguna, el bloque no sale.',
+          item: [
+            { k: 't', label: 'Título', type: 'text', max: 54 },
+            { k: 'd', label: 'Explicación', type: 'textarea', rows: 2, max: 170 },
+            { k: 'img', label: 'Captura', type: 'image' },
+            { k: 'cta', label: 'Texto del enlace', type: 'text', max: 24 },
+            { k: 'ctaUrl', label: 'URL', type: 'url' }
+          ],
+          def: [] }
+      ] },
       { titulo: 'Cierre', campos: [
         { k: 'cierreKicker', label: 'Antetítulo', type: 'text', max: 34, def: 'Más Playoff, menos vueltas' },
         { k: 'cierreTitulo', label: 'Titular', type: 'textarea', rows: 2, max: 70, def: 'Pequeños cambios.\n**Un día a día más fácil.**' },
@@ -567,6 +612,11 @@
       ] },
       marca()
     ],
+    migrar: function (d, guardados) {
+      // Borradores de antes: sin destacadas ni mejoras rápidas, como se veían.
+      if (!Array.isArray(guardados.destacadas)) d.destacadas = [];
+      if (!Array.isArray(guardados.rapidas)) d.rapidas = [];
+    },
     render: function (d) {
       var h = E.head(String(d.titular || 'Novedades Playoff').replace(/[*\n]/g, ' '), d.preheader || d.subtitular);
       h += E.logo(d, true, 'hero');
@@ -574,10 +624,19 @@
         E.eyebrow(d.eyebrow) + E.gap(18) + E.h1(d.titular) +
         (d.subtitular ? '<p class="lede">' + E.marca(d.subtitular) + '</p>' : ''),
         { top: 30, bottom: 38, align: 'center', fondo: 'hero' });
+      var dest = E.list(d, 'destacadas');
+      dest.forEach(function (it, i) {
+        h += E.seccion(E.tarjetaGrande(it), { top: i ? 20 : 36, bottom: 6 });
+      });
       E.list(d, 'items').forEach(function (it, i) {
         h += E.seccion((i ? '<div style="height:1px;background:' + E.C.line + ';margin-bottom:30px;font-size:0;">&nbsp;</div>' : '') +
-          E.fila(it, i % 2 === 1), { top: i ? 30 : 38, bottom: 0 });
+          E.fila(it, i % 2 === 1), { top: i ? 30 : (dest.length ? 44 : 38), bottom: 0 });
       });
+      var rap = E.list(d, 'rapidas');
+      if (rap.length) {
+        h += E.seccion(E.kicker(d.masKicker) + E.gap(10) + E.h2(d.masTitulo), { top: 44, bottom: 24 });
+        h += E.seccion(E.rejilla(rap, false), { top: 0, bottom: 0 });
+      }
       h += E.seccion(E.kicker(d.cierreKicker) + E.gap(10) + E.h2(d.cierreTitulo, true) +
         (d.cierreTexto ? '<p class="lede">' + E.marca(d.cierreTexto) + '</p>' : '') +
         E.gap(22) + E.btn(d.cierreCta, d.cierreUrl, 'blue'),
@@ -605,7 +664,8 @@
       ] },
       { titulo: 'Qué aporta', campos: [
         { k: 'bloqueTitulo', label: 'Título del bloque', type: 'textarea', rows: 2, max: 70, def: 'Todo tu personal,\n**en un solo lugar.**' },
-        { k: 'items', label: 'Ventajas', type: 'lista', max: 4,
+        { k: 'items', label: 'Ventajas', type: 'lista', max: 8,
+          help: NOTA_MODULOS + ' Van de dos en dos por fila.',
           item: [{ k: 't', label: 'Título', type: 'text', max: 54 }, { k: 'd', label: 'Explicación', type: 'textarea', rows: 2, max: 170 }],
           def: [
             { t: 'Gestión laboral completa', d: 'Contratos, nóminas y personal en la misma ficha que ya usas para el resto de la entidad.' },
@@ -798,5 +858,12 @@
     }
     return d;
   }
-  window.PM_PLANTILLAS = { lista: T, byId: byId, campos: campos, defaults: defaults };
+  /* Datos guardados + valores por defecto de los campos nuevos, adaptando borradores antiguos. */
+  function cargar(t, guardados) {
+    guardados = guardados || {};
+    var d = Object.assign(defaults(t), JSON.parse(JSON.stringify(guardados)));
+    if (t.migrar) t.migrar(d, guardados);
+    return d;
+  }
+  window.PM_PLANTILLAS = { lista: T, byId: byId, campos: campos, defaults: defaults, cargar: cargar };
 })();

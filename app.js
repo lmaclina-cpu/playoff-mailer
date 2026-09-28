@@ -120,7 +120,7 @@
           var f = document.createElement('iframe');
           f.setAttribute('title', 'Previsualización de ' + (it.nombre || 'un envío'));
           f.setAttribute('tabindex', '-1');
-          var datos = Object.assign(P.defaults(t), it.datos);
+          var datos = P.cargar(t, it.datos);
           f.srcdoc = pintarPlantilla(t, datos, true).replace(/(src|background)="\/(?!\/)/g, '$1="' + location.origin + '/');
           thumb.appendChild(f);
         }
@@ -176,10 +176,10 @@
     var t = P.byId[plantillaId];
     if (!t) return;
     S.plantilla = t;
-    S.datos = datos ? JSON.parse(JSON.stringify(datos)) : P.defaults(t);
+    S.datos = datos ? P.cargar(t, datos) : P.defaults(t);
     S.id = id || null;
     S.nombre = nombre || (t.nombre + ' · ' + hoyISO());
-    S.asunto = asunto || primeraLinea(S.datos.titular || S.datos.destTitulo || t.nombre).replace(/\n/g, ' ');
+    S.asunto = asunto || primeraLinea(S.datos.titular || (S.datos.destacadas && S.datos.destacadas[0] && S.datos.destacadas[0].t) || t.nombre).replace(/\n/g, ' ');
     S.abiertos = {};
     sucio = false;
     t.grupos.forEach(function (g, i) { S.abiertos[g.titulo] = i < 3; });
@@ -473,8 +473,11 @@
   function campoLista(c) {
     var wrap = el('div', 'field');
     var lab = document.createElement('label');
-    lab.textContent = c.label;
+    lab.appendChild(el('span', null, c.label));
+    var cnt = el('span', 'count');
+    lab.appendChild(cnt);
     wrap.appendChild(lab);
+    if (c.help) wrap.appendChild(el('div', 'help', c.help));
     var host = el('div');
     host.style.cssText = 'display:flex; flex-direction:column; gap:10px;';
     wrap.appendChild(host);
@@ -482,6 +485,7 @@
     function pintar() {
       host.textContent = '';
       var arr = S.datos[c.k] || (S.datos[c.k] = []);
+      cnt.textContent = arr.length + '/' + (c.max || 99);
       arr.forEach(function (item, idx) {
         var box = el('div', 'rep');
         var head = el('div', 'rep-head');
@@ -524,6 +528,7 @@
           });
           f.appendChild(inp);
           if (cnt) { cnt.textContent = inp.value.length + '/' + sub.max; }
+          if (sub.help) f.appendChild(el('div', 'help', sub.help));
           box.appendChild(f);
         });
         host.appendChild(box);
