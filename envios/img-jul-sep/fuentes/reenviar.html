@@ -1,15 +1,37 @@
 <html><head><link rel="stylesheet" href="base.css"><style>:root{--w:1200px;--h:720px}
-.m{position:absolute;left:150px;right:150px;top:56px;bottom:-40px;padding:48px 64px}
-.t{display:flex;align-items:center;gap:22px;font-size:44px;font-weight:700;letter-spacing:-.02em}
+.m{position:absolute;left:222px;right:222px;top:104px;bottom:-40px;padding:34px 44px}
+.t{display:flex;align-items:center;gap:22px;font-size:40px;font-weight:700;letter-spacing:-.02em}
 .b{width:76px;height:76px;border-radius:50%;background:var(--azul2);display:flex;align-items:center;justify-content:center}
-.q{margin:28px 0 20px;font-size:30px;font-weight:600;color:#374151}
-.o{display:flex;align-items:center;gap:22px;border:2px solid var(--linea);border-radius:18px;padding:24px 28px;font-size:30px;margin-bottom:16px;color:#4b5563}
+.q{margin:22px 0 16px;font-size:30px;font-weight:600;color:#374151}
+.o{display:flex;align-items:center;gap:22px;border:2px solid var(--linea);border-radius:18px;padding:18px 24px;font-size:28px;margin-bottom:12px;color:#4b5563}
 .o .n{margin-left:auto;background:#f1f3f7;border-radius:10px;padding:4px 16px;font-weight:700;color:#374151}
 .r{width:32px;height:32px;border-radius:50%;border:3px solid #cbd2dc;flex:none}
 .o.on{border-color:var(--azul);background:#f3f7ff;color:var(--ink);font-weight:600;box-shadow:0 0 0 6px rgba(29,95,232,.12)}
-.cta{margin-top:26px;background:var(--azul);color:#fff;font-size:30px;font-weight:600;text-align:center;padding:24px;border-radius:16px}
+.cta{margin-top:18px;background:var(--azul);color:#fff;font-size:30px;font-weight:600;text-align:center;padding:24px;border-radius:16px}
 .o.on .r{border:10px solid var(--azul)} .o.on .n{background:var(--azul);color:#fff}
+.bg{position:absolute;inset:0;background:#f5f7fb;filter:blur(3px);transform:scale(1.02)}
+.nav{height:78px;background:#1d4ed8;display:flex;align-items:center;gap:34px;padding:0 30px;color:#fff;font-size:22px;font-weight:600}
+.nav .lg{width:40px;height:40px;border-radius:50%;border:6px solid #fff}.nav .bs{background:rgba(255,255,255,.18);border-radius:10px;padding:10px 60px 10px 18px;font-weight:400}
+.nav .act{background:rgba(0,0,0,.18);padding:26px 16px}
+.hd{display:flex;align-items:center;gap:14px;padding:26px 36px;background:#fff}.hd .ti{font-size:32px;font-weight:700;margin-right:auto}
+.bt{font-size:20px;font-weight:600;padding:12px 20px;border-radius:10px}.bt.g{border:2px solid #e5e7eb}.bt.b{background:#1d5fe8;color:#fff}
+.tabs{display:flex;gap:34px;padding:0 36px;background:#fff;border-bottom:2px solid #e5e7eb;font-size:21px;font-weight:600;color:#4b5563}.tabs span{padding:14px 0}.tabs .on{color:#1d5fe8;border-bottom:4px solid #1d5fe8}
+.cuerpo{display:flex;gap:30px;padding:30px 36px}
+.stats{display:flex;gap:18px}.stats div{width:150px;height:150px;background:#fff;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.stats b{font-size:52px}.stats i{font-style:normal;font-size:19px;margin-top:4px}
+.prev{flex:1;background:#fff;border-radius:14px;padding:26px;box-shadow:0 2px 6px rgba(0,0,0,.06)}.prev .pb{height:120px;background:#dbe6fb;border-radius:10px;margin-bottom:20px}.prev .l{height:16px;background:#e5e7eb;border-radius:8px;margin-bottom:14px}
+.velo{position:absolute;inset:0;background:rgba(15,23,42,.38)}
+.m{box-shadow:0 30px 80px rgba(15,23,42,.35)!important}
 </style></head><body>
+<div class="bg">
+ <div class="nav"><span class="lg"></span><span class="bs">Buscar…</span><span>Asociados</span><span>Finanzas</span><span class="act">Comunicación</span><span>Actividades</span><span>Otros</span></div>
+ <div class="hd"><span class="ti">←&nbsp; Boletín de septiembre</span><span class="bt g">Imprimir PDF</span><span class="bt b">Clonar</span><span class="bt b">Reenviar</span></div>
+ <div class="tabs"><span class="on">Información</span><span>Destinatarios (248)</span></div>
+ <div class="cuerpo">
+  <div class="stats"><div><b>248</b><i style="color:#16a34a">Enviados</i></div><div><b>69%</b><i>Abiertos</i></div><div><b>2</b><i style="color:#dc2626">Rebotados</i></div></div>
+  <div class="prev"><div class="pb"></div><div class="l" style="width:70%"></div><div class="l"></div><div class="l" style="width:85%"></div><div class="l" style="width:60%"></div><div class="l" style="width:78%"></div></div>
+ </div>
+</div><div class="velo"></div>
 <div class="card m">
  <div class="t"><span class="b"><svg class="ico" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1d5fe8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></span>Reenviar comunicado</div>
  <div class="q">¿A quién quieres reenviarlo?</div>
