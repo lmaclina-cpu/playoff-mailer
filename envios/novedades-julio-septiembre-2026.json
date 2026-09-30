@@ -7,28 +7,64 @@
     "eyebrow": "Novedades",
     "mes": "Julio – Septiembre",
     "titular": "Todo lo nuevo que ha llegado a Playoff\n*estos últimos meses.*",
-    "subtitular": "Durante estos meses de verano hemos seguido incorporando mejoras para hacer más sencilla la gestión diaria de tu entidad, reducir tareas manuales y darte más control desde un único lugar.\n\nNuevas opciones para comunicarte mejor con tus asociados, gestionar inscripciones, organizar tu equipo con Playoff Time y mantener un mayor control sobre tus procesos.",
-    "nota": "Recuerda que puedes consultar todas las mejoras desde la campanita de notificaciones situada en la parte superior derecha de tu entorno Playoff.",
-    "destIntro": "Estas son **7 de las novedades más destacadas** que ya tienes disponibles.",
+    "subtitular": "Un verano de mejoras para que gestionar tu entidad te lleve menos tiempo: comunicación más precisa, inscripciones más claras y más control de tu equipo con Playoff Time.",
+    "nota": "Todas las mejoras, siempre en la campanita de arriba a la derecha de tu Playoff.",
+    "destIntro": "Estas son **las 7 más destacadas.**",
     "destTag": "La novedad principal",
     "destTitulo": "Reenvía tus comunicados según quién los haya abierto",
-    "destTexto": "Ya no tienes que localizar manualmente a los socios que no han leído un mensaje.\n\nAhora puedes reenviar un comunicado a **todos, solo a quienes lo han abierto o solo a quienes todavía no lo han leído**.\n\nMás fácil volver a llegar a quien necesita recibir tu mensaje, directamente desde Playoff.",
+    "destTexto": "Reenvía un comunicado a todos, solo a quienes lo han abierto o **solo a quienes aún no lo han leído**. Sin buscar socio por socio.",
     "destImg": "",
     "destCta": "Descubrir esta mejora",
     "destUrl": "https://playoffinformatica.com/",
     "masKicker": "",
     "masTitulo": "",
     "items": [
-      { "t": "Segmenta mejor tus comunicados", "d": "Ahora puedes excluir audiencias de tus envíos y crear nuevos grupos a partir de las personas inscritas en una actividad.\n**Más precisión para que cada comunicación llegue solo a quien corresponde.**", "img": "", "cta": "Saber más", "ctaUrl": "https://playoffinformatica.com/" },
-      { "t": "Muestra las plazas disponibles", "d": "Puedes indicar en los formularios de preinscripción cuántas plazas quedan disponibles en cada subcategoría.\n**Más información para las familias antes de completar su inscripción.**", "img": "", "cta": "Saber más", "ctaUrl": "https://playoffinformatica.com/" },
-      { "t": "Inscripciones más seguras", "d": "Hemos mejorado la reserva temporal de plazas para ofrecer un proceso más seguro también en actividades con alta demanda y lista de espera.\n**Menos conflictos cuando varias personas intentan conseguir las últimas plazas al mismo tiempo.**", "img": "", "cta": "Saber más", "ctaUrl": "https://playoffinformatica.com/" }
+      {
+        "t": "Segmenta mejor tus comunicados",
+        "d": "Excluye audiencias y crea grupos con los inscritos a una actividad.\n**Cada mensaje, solo a quien toca.**",
+        "img": "",
+        "cta": "Saber más",
+        "ctaUrl": "https://playoffinformatica.com/"
+      },
+      {
+        "t": "Muestra las plazas disponibles",
+        "d": "Indica en la preinscripción cuántas plazas quedan en cada subcategoría.\n**Las familias lo saben antes de inscribirse.**",
+        "img": "",
+        "cta": "Saber más",
+        "ctaUrl": "https://playoffinformatica.com/"
+      },
+      {
+        "t": "Inscripciones más seguras",
+        "d": "Reserva temporal de plazas mejorada, también con alta demanda y lista de espera.\n**Menos choques por las últimas plazas.**",
+        "img": "",
+        "cta": "Saber más",
+        "ctaUrl": "https://playoffinformatica.com/"
+      }
     ],
     "mas2Kicker": "Y hay más",
-    "mas2Titulo": "Más mejoras.\n*Para hacerte el día a día*\n*más fácil.*",
+    "mas2Titulo": "Más mejoras.\n*Para tu día a día.*",
     "items2": [
-      { "t": "Calendario global de ausencias", "d": "Playoff Time incorpora una nueva vista para consultar vacaciones y ausencias de todo el equipo desde un único calendario.\n**Más fácil planificar y saber quién está disponible en cada momento.**", "img": "", "cta": "Saber más", "ctaUrl": "https://playoffinformatica.com/" },
-      { "t": "Documentos laborales en Playoff Time", "d": "Nueva sección para centralizar la documentación laboral de los trabajadores dentro de Playoff Time.\n**Todo más organizado y accesible desde un mismo espacio.**", "img": "", "cta": "Saber más", "ctaUrl": "https://playoffinformatica.com/" },
-      { "t": "Envíos parciales en la tienda", "d": "Ahora puedes gestionar pedidos realizando envíos parciales de los productos disponibles sin tener que esperar a completar todo el pedido.\n**Más flexibilidad para la entidad y mejor información para el comprador durante todo el proceso.**", "img": "", "cta": "Saber más", "ctaUrl": "https://playoffinformatica.com/" }
+      {
+        "t": "Calendario global de ausencias",
+        "d": "Vacaciones y ausencias de todo el equipo en un solo calendario de Playoff Time.\n**Quién está disponible, de un vistazo.**",
+        "img": "",
+        "cta": "Saber más",
+        "ctaUrl": "https://playoffinformatica.com/"
+      },
+      {
+        "t": "Documentos laborales en Playoff Time",
+        "d": "Nueva sección para centralizar la documentación laboral de cada trabajador.\n**Todo ordenado y en un mismo sitio.**",
+        "img": "",
+        "cta": "Saber más",
+        "ctaUrl": "https://playoffinformatica.com/"
+      },
+      {
+        "t": "Envíos parciales en la tienda",
+        "d": "Envía lo que ya tienes sin esperar a completar el pedido.\n**Más flexibilidad para ti, más información para el comprador.**",
+        "img": "",
+        "cta": "Saber más",
+        "ctaUrl": "https://playoffinformatica.com/"
+      }
     ],
     "promoTitulo": ""
   }
