@@ -6,7 +6,9 @@ const piezas = [['reenviar',1200,720],['segmenta',800,600],['plazas',800,600],['
   for (const [n, w, h] of piezas) {
     const p = await b.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
     await p.goto('file://' + dir + '/' + n + '.html'); await p.evaluate(() => document.fonts.ready); await p.waitForTimeout(400);
-    await p.screenshot({ path: salida + '/' + n + '.jpg', type: 'jpeg', quality: 90 });
+    // Ausencias: ceñida a la ventana del navegador (sin el margen de la captura).
+    const recorte = n === 'ausencias-destacada' ? { clip: { x: 52, y: 35, width: 1896, height: 1203 } } : {};
+    await p.screenshot(Object.assign({ path: salida + '/' + n + '.jpg', type: 'jpeg', quality: 92 }, recorte));
     await p.close();
   }
   await b.close();
