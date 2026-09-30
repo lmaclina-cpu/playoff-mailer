@@ -1,62 +1,23 @@
-<html><head><link rel="stylesheet" href="base.css"><style>:root{--w:860px;--h:600px}
-body{background:#fff;display:block;padding:14px 14px 0}
-.win{border-radius:14px 14px 0 0;overflow:hidden;box-shadow:0 10px 30px rgba(15,23,42,.18),0 0 0 1px rgba(15,23,42,.08);height:600px;background:#fff}
-.bar{height:28px;background:#1d5fe8;display:flex;align-items:center;padding:0 12px;gap:6px}
-.bar i{width:10px;height:10px;border-radius:50%}.url{margin:0 auto;background:rgba(255,255,255,.18);color:#fff;font-size:10px;border-radius:7px;padding:3px 90px}
-.nav{height:44px;background:#1d5fe8;display:flex;align-items:center;gap:22px;padding:0 16px;color:#fff;font-size:13px;font-weight:600}
-.nav .lg{width:24px;height:24px;border-radius:50%;border:4px solid #fff}.nav .bs{background:rgba(255,255,255,.18);border-radius:8px;padding:6px 60px 6px 10px;font-weight:400}
-.nav .act{background:#1649c0;padding:13px 12px}
-.app{display:flex;height:528px}
-.side{width:170px;border-right:1px solid var(--linea);padding:12px 10px;font-size:10.5px;font-weight:600;color:#1f2937}
-.side h4{font-size:15px;margin:0 0 10px 4px}.side .s{font-size:9px;color:#6b7280;font-weight:600;margin:12px 4px 6px}
-.side div{padding:5px 4px}.side .on{background:#e8f0fe;color:#1d5fe8;border-radius:6px}
-.side .sub{padding:3px 4px 3px 16px;font-weight:500}.side .sub.on{background:none;border-left:2px solid #1d5fe8}
-.nv{background:#1d5fe8;color:#fff;border-radius:4px;padding:1px 5px;font-size:8.5px;margin-left:6px}
-.main{flex:1;padding:0 18px}
-.h{display:flex;align-items:center;gap:10px;height:54px;border-bottom:1px solid var(--linea);font-size:18px;font-weight:700}
-.h .btn{margin-left:auto;background:#1d5fe8;color:#fff;font-size:12px;padding:8px 12px;border-radius:7px}
-.row{display:flex;gap:12px;margin:14px 0}
-.st{display:flex;align-items:center;background:#f3f4f6;border-radius:10px;padding:10px 6px}
-.st div{width:78px;text-align:center}.st b{display:block;font-size:24px}.st span{font-size:11px;color:#374151}
-.hoy{flex:1;border:1px solid var(--linea);border-radius:10px;padding:10px 14px}
-.hoy p{font-size:13px;font-weight:700;margin-bottom:8px}
-.p{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;background:#f3f5f9;border-radius:999px;padding:3px 10px 3px 3px;margin-right:6px}
-.p i{width:20px;height:20px;border-radius:50%;color:#fff;font-size:8px;font-style:normal;display:flex;align-items:center;justify-content:center}
-.tabs{display:flex;gap:14px;font-size:12px;font-weight:600;color:#374151;border-bottom:1px solid var(--linea)}.tabs span{padding:6px 2px}.tabs .on{color:#1d5fe8;border-bottom:2px solid #1d5fe8}
-.cab{display:flex;align-items:center;margin:12px 0 8px;font-size:18px;font-weight:700}.cab small{margin-left:auto;font-size:11px;border:1px solid var(--linea);border-radius:6px;padding:3px 10px;color:#6b7280;font-weight:500}
-.meses{display:flex;gap:16px}
-.mes{flex:1}.mes h5{text-align:center;font-size:12.5px;margin-bottom:5px}
-.g{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid #d1d5db;border-left:1px solid #d1d5db}
-.g div{border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;height:34px;font-size:9.5px;text-align:right;padding:1px 3px;color:#374151;position:relative}
-.g .w{height:15px;text-align:center;font-weight:600;padding:1px 0}
-.g .x{background:#eeeff1}
-.c{position:absolute;left:1px;right:1px;bottom:3px;height:12px;border-radius:2px;color:#fff;font-size:8px;font-weight:700;text-align:left;padding-left:3px;line-height:12px;overflow:hidden;white-space:nowrap}
-</style></head><body><div class="win">
-<div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="url">playoffinformatica.com</span></div>
-<div class="nav"><span class="lg"></span><span class="bs">Buscar…</span><span class="act">Asociados</span><span>Finanzas</span><span>Comunicación</span><span>Actividades</span><span>Otros</span></div>
-<div class="app"><div class="side"><h4>Asociados</h4>
-<div class="s">FILTRO DE ASOCIADOS</div><div>Todos los asociados</div><div>Asociados por categoría</div><div>Asociados por estado</div>
-<div class="s">ACCESO</div><div>Control acceso</div><div>Control asistencia</div><div class="on">Registro horario</div>
-<div class="sub">Mi registro horario</div><div class="sub">Trabajadores</div><div class="sub">Horario laboral</div><div class="sub on" style="color:#1d5fe8">Ausencias</div><div class="sub">Departamentos</div><div class="sub">Documentos laborales<span class="nv">Nuevo</span></div></div>
-<div class="main">
-<div class="h"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2.2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>Registro horario / Ausencias<span class="btn">+ Solicitar ausencia</span></div>
-<div class="row"><div class="st"><div><b>23</b><span>Generado</span></div><div><b>12</b><span>Disponible</span></div><div><b>11</b><span>Aprobado</span></div><div><b>1</b><span>Pendiente</span></div></div>
-<div class="hoy"><p>Personas ausentes hoy</p><span class="p"><i style="background:#1d5fe8">AM</i>Ana · Vacaciones</span><span class="p"><i style="background:#f59e0b">JR</i>Jordi · Asuntos propios</span><span class="p"><i style="background:#10b981">LC</i>Laia · Formación</span></div></div>
-<div class="tabs"><span>Mis ausencias</span><span class="on">Calendario</span><span>Solicitudes</span><span>Saldos</span></div>
-<div class="cab">2026<small>Hoy &nbsp;‹ &nbsp;›</small></div>
-<div class="meses" id="m"></div>
-</div></div></div>
-<script>
-var C={A:['#1d5fe8','Ana'],J:['#f59e0b','Jordi'],L:['#10b981','Laia'],P:['#8b5cf6','Pau'],M:['#1d5fe8','Marc'],E:['#ec4899','Elena'],F:['#0ea5e9','Festivo']};
-var ev={6:{1:'P',2:'P',3:'P',6:'A',7:'A',8:'A',9:'A',10:'A',15:'J',16:'J',21:'L',22:'L',23:'L',27:'M',28:'M',29:'M',30:'M',31:'M'},
-7:{3:'E',4:'E',5:'E',6:'E',7:'E',10:'A',11:'A',12:'A',13:'A',14:'A',15:'F',17:'P',18:'P',19:'P',24:'J',25:'J',26:'L',27:'L'},
-8:{1:'M',2:'M',8:'J',11:'F',14:'L',15:'L',16:'L',21:'E',22:'E',28:'A',29:'A',30:'A'}};
-var nombres=['julio','agosto','septiembre'],m=document.getElementById('m');
-[6,7,8].forEach(function(mo,k){var d=document.createElement('div');d.className='mes';var h='<h5>'+nombres[k]+'</h5><div class="g">';
-['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].forEach(function(w){h+='<div class="w">'+w+'</div>';});
-var first=(new Date(2026,mo,1).getDay()+6)%7, days=new Date(2026,mo+1,0).getDate(), n=0;
-for(var i=0;i<first;i++,n++)h+='<div class="x"></div>';
-for(var dd=1;dd<=days;dd++,n++){var e=ev[mo][dd];h+='<div>'+dd+(e?'<span class="c" style="background:'+C[e][0]+'">'+C[e][1]+'</span>':'')+'</div>';}
-while(n%7)h+='<div class="x"></div>',n++;
-d.innerHTML=h+'</div>';m.appendChild(d);});
-</script></body></html>
+<html><head><link rel="stylesheet" href="base.css"><style>
+html,body{width:2000px;height:1306px;display:block;background:#fff;font-family:Inter,-apple-system,sans-serif}
+.base{position:absolute;left:0;top:0;width:2000px;height:1306px}
+.t{position:absolute;display:flex;align-items:center;justify-content:center}
+.n{background:#f7f6f9;font-size:40px;font-weight:600;color:#111;width:70px;height:50px;top:283px;letter-spacing:-.01em}
+.chip{position:absolute;height:16px;background:#1e6ad4;color:#fff;font-size:14.5px;line-height:16px;font-weight:500;padding-left:2px;border-radius:2px;overflow:hidden;white-space:nowrap;width:62px}
+.hoy{position:absolute;left:425px;top:482px;width:1400px;height:46px;background:#fff;display:flex;align-items:center;gap:26px}
+.pp{display:flex;align-items:center;gap:10px;font-size:17px;color:#111;font-weight:600}
+.pp i{width:30px;height:30px;border-radius:50%;background:#e8eefb;color:#1e6ad4;font-size:12px;font-style:normal;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pp span{color:#6b7280;font-weight:400}
+.url{position:absolute;left:915px;top:49px;width:170px;height:19px;background:#0074fe;color:#fff;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center}
+</style></head><body>
+<img class="base" src="ausencias-captura.png">
+<div class="url">playoffinformatica.com</div>
+<div class="t n" style="left:434px">23</div>
+<div class="t n" style="left:555px">19</div>
+<div class="t n" style="left:677px">4</div>
+<div class="hoy"><div class="pp"><i>AM</i>Ana Martín <span>· Vacaciones</span></div><div class="pp"><i>JR</i>Jordi Roca <span>· Asuntos propios</span></div></div>
+<div class="chip" style="left:925px;top:975px">Vacaciones</div>
+<div class="chip" style="left:991px;top:975px">Vacaciones</div>
+<div class="chip" style="left:1056px;top:975px">Vacaciones</div>
+<div class="chip" style="left:1427px;top:918px">Asuntos propios</div>
+</body></html>
