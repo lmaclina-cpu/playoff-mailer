@@ -45,6 +45,8 @@
   var AYUDA_GRIS = 'Lo que pongas entre asteriscos (*así*) sale en gris: es el énfasis de este diseño. El salto de línea se respeta.';
   var MODULO = 'Saber más de este módulo';
   var ITEM_MEJORA = [
+    { k: 'mod', label: 'Módulo', type: 'text', max: 24,
+      help: 'Opcional. Sale en mayúsculas encima del título, p. ej. Comunicaciones. Enlaza el botón a la página del módulo.' },
     { k: 't', label: 'Título', type: 'text', max: 40 },
     { k: 'd', label: 'Explicación', type: 'textarea', rows: 3, max: 240,
       help: 'Lo que pongas entre **dos asteriscos** sale en negro. El salto de línea se respeta.' },
@@ -66,7 +68,7 @@
       }, 0);
     }
     var alto = Math.max(150, Math.ceil(Math.max.apply(null, its.map(function (it) {
-      return lineas(it.t, 24) * 22 + (it.d ? 8 + lineas(it.d, 26) * 23.25 : 0);
+      return (it.mod ? 26 : 0) + lineas(it.t, 24) * 22 + (it.d ? 8 + lineas(it.d, 26) * 23.25 : 0);
     })) + 8));
     var cols = its.map(function (it, i) {
       var p = n === 1 ? '0' : (i === 0 ? '0 7px 0 0' : (i === n - 1 ? '0 0 0 7px' : '0 3px'));
@@ -75,11 +77,15 @@
         : (E.enVista() ? E.falta(147, 'Falta la imagen', 14) + W.hueco(18)
           : (conImg ? '<div style="border-radius:14px;background:' + W.C.suave + ';height:147px;"></div>' + W.hueco(18) : ''));
       return '<td class="col" width="' + Math.floor(100 / n) + '%" valign="top" style="padding:' + p + ';">' + imagen +
-        '<div class="alto" style="height:' + alto + 'px;">' + W.h3(it.t || '', 18) +
+        '<div class="alto" style="height:' + alto + 'px;">' + modulo(it.mod) + W.h3(it.t || '', 18) +
         (it.d ? W.hueco(8) + W.parrafo(it.d, { size: 15 }) : '') + '</div>' +
         (it.cta ? W.hueco(14) + W.enlaceAzul(it.cta, it.ctaUrl) : '') + W.hueco(32) + '</td>';
     }).join('');
     return W.fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' + cols + '</tr></table>', pad, true);
+  }
+  function modulo(t) {
+    if (!t) return '';
+    return '<p style="margin:0 0 10px;color:' + W.C.azul + ';font-size:12px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;">' + E.esc(String(t).toUpperCase()) + '</p>';
   }
   function cabeceraBloque(kicker, titulo, pad) {
     if (!kicker && !titulo) return '';

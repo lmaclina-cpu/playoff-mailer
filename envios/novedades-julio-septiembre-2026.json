@@ -10,60 +10,66 @@
     "subtitular": "Un verano de mejoras para que gestionar tu entidad te lleve menos tiempo: comunicación más precisa, inscripciones más claras y más control de tu equipo con Playoff Time.",
     "nota": "Todas las mejoras, siempre en la campanita de arriba a la derecha de tu Playoff.",
     "destIntro": "Estas son **las 7 más destacadas.**",
-    "destTag": "La novedad principal",
+    "destTag": "COMUNICACIONES",
     "destTitulo": "Reenvía tus comunicados según quién los haya abierto",
     "destTexto": "Reenvía un comunicado a todos, solo a quienes lo han abierto o **solo a quienes aún no lo han leído**. Sin buscar socio por socio.",
     "destImg": "",
     "destCta": "Descubrir esta mejora",
-    "destUrl": "https://playoffinformatica.com/",
+    "destUrl": "https://playoffinformatica.com/envio-comunicados-emails/",
     "masKicker": "",
     "masTitulo": "",
     "items": [
       {
+        "mod": "Comunicaciones",
         "t": "Segmenta mejor tus comunicados",
         "d": "Excluye audiencias y crea grupos con los inscritos a una actividad.\n**Cada mensaje, solo a quien toca.**",
         "img": "",
         "cta": "Saber más",
-        "ctaUrl": "https://playoffinformatica.com/"
+        "ctaUrl": "https://playoffinformatica.com/envio-comunicados-emails/"
       },
       {
+        "mod": "Actividades",
         "t": "Muestra las plazas disponibles",
         "d": "Indica en la preinscripción cuántas plazas quedan en cada subcategoría.\n**Las familias lo saben antes de inscribirse.**",
         "img": "",
         "cta": "Saber más",
-        "ctaUrl": "https://playoffinformatica.com/"
+        "ctaUrl": "https://playoffinformatica.com/gestion-actividades-eventos/"
       },
       {
+        "mod": "Actividades",
         "t": "Inscripciones más seguras",
         "d": "Reserva temporal de plazas mejorada, también con alta demanda y lista de espera.\n**Menos choques por las últimas plazas.**",
         "img": "",
         "cta": "Saber más",
-        "ctaUrl": "https://playoffinformatica.com/"
+        "ctaUrl": "https://playoffinformatica.com/gestion-actividades-eventos/"
       }
     ],
     "mas2Kicker": "Y hay más",
     "mas2Titulo": "Más mejoras.\n*Para tu día a día.*",
     "items2": [
       {
+        "mod": "Playoff Time",
         "t": "Calendario global de ausencias",
         "d": "Vacaciones y ausencias de todo el equipo en un solo calendario de Playoff Time.\n**Quién está disponible, de un vistazo.**",
         "img": "",
         "cta": "Saber más",
-        "ctaUrl": "https://playoffinformatica.com/"
+        "ctaUrl": "https://playoffinformatica.com/software-control-horario-fichaje-laboral/"
       },
       {
+        "mod": "Playoff Time",
         "t": "Documentos laborales en Playoff Time",
         "d": "Nueva sección para centralizar la documentación laboral de cada trabajador.\n**Todo ordenado y en un mismo sitio.**",
         "img": "",
         "cta": "Saber más",
-        "ctaUrl": "https://playoffinformatica.com/"
+        "ctaUrl": "https://playoffinformatica.com/software-control-horario-fichaje-laboral/"
       },
       {
+        "mod": "Tienda online",
         "t": "Envíos parciales en la tienda",
         "d": "Envía lo que ya tienes sin esperar a completar el pedido.\n**Más flexibilidad para ti, más información para el comprador.**",
         "img": "",
         "cta": "Saber más",
-        "ctaUrl": "https://playoffinformatica.com/"
+        "ctaUrl": "https://playoffinformatica.com/tienda-online-entidades/"
       }
     ],
     "promoTitulo": ""
