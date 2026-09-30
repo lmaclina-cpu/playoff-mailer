@@ -24,24 +24,24 @@
         "t": "Segmenta mejor tus comunicados",
         "d": "Excluye audiencias y crea grupos con los inscritos a una actividad.\n**Cada mensaje, solo a quien toca.**",
         "img": "img-jul-sep/segmenta.jpg",
-        "cta": "Saber más",
-        "ctaUrl": "https://playoffinformatica.com/envio-comunicados-emails/"
+        "cta": "",
+        "ctaUrl": ""
       },
       {
         "mod": "Actividades",
         "t": "Muestra las plazas disponibles",
         "d": "Indica en la preinscripción cuántas plazas quedan en cada subcategoría.\n**Las familias lo saben antes de inscribirse.**",
         "img": "img-jul-sep/plazas.jpg",
-        "cta": "Saber más",
-        "ctaUrl": "https://playoffinformatica.com/gestion-actividades-eventos/"
+        "cta": "",
+        "ctaUrl": ""
       },
       {
         "mod": "Actividades",
         "t": "Inscripciones más seguras",
         "d": "Reserva temporal de plazas mejorada, también con alta demanda y lista de espera.\n**Menos choques por las últimas plazas.**",
         "img": "img-jul-sep/reserva.jpg",
-        "cta": "Saber más",
-        "ctaUrl": "https://playoffinformatica.com/gestion-actividades-eventos/"
+        "cta": "",
+        "ctaUrl": ""
       }
     ],
     "mas2Kicker": "Y hay más",
@@ -52,26 +52,32 @@
         "t": "Calendario global de ausencias",
         "d": "Vacaciones y ausencias de todo el equipo en un solo calendario de Playoff Time.\n**Quién está disponible, de un vistazo.**",
         "img": "img-jul-sep/ausencias.jpg",
-        "cta": "Saber más",
-        "ctaUrl": "https://playoffinformatica.com/software-control-horario-fichaje-laboral/"
+        "cta": "",
+        "ctaUrl": ""
       },
       {
         "mod": "Playoff Time",
         "t": "Documentos laborales en Playoff Time",
         "d": "Nueva sección para centralizar la documentación laboral de cada trabajador.\n**Todo ordenado y en un mismo sitio.**",
         "img": "img-jul-sep/documentos.jpg",
-        "cta": "Saber más",
-        "ctaUrl": "https://playoffinformatica.com/software-control-horario-fichaje-laboral/"
+        "cta": "",
+        "ctaUrl": ""
       },
       {
         "mod": "Tienda online",
         "t": "Envíos parciales en la tienda",
         "d": "Envía lo que ya tienes sin esperar a completar el pedido.\n**Más flexibilidad para ti, más información para el comprador.**",
         "img": "img-jul-sep/envios.jpg",
-        "cta": "Saber más",
-        "ctaUrl": "https://playoffinformatica.com/tienda-online-entidades/"
+        "cta": "",
+        "ctaUrl": ""
       }
     ],
-    "promoTitulo": ""
+    "promoTitulo": "",
+    "banFondo": "img-jul-sep/banner-fondo.jpg",
+    "banTitulo": "Lo bueno se comparte.",
+    "banTexto": "Recomienda Playoff y convierte tus invitaciones en **meses gratis**.",
+    "banPills": "Meses gratis\nHasta 69,99 € por amigo\nSin límite",
+    "banCta": "",
+    "banUrl": ""
   }
 }

@@ -70,6 +70,7 @@
     var alto = Math.max(150, Math.ceil(Math.max.apply(null, its.map(function (it) {
       return (it.mod ? 26 : 0) + lineas(it.t, 24) * 22 + (it.d ? 8 + lineas(it.d, 26) * 23.25 : 0);
     })) + 8));
+    var conCta = its.some(function (it) { return it.cta; });
     var cols = its.map(function (it, i) {
       var p = n === 1 ? '0' : (i === 0 ? '0 7px 0 0' : (i === n - 1 ? '0 0 0 7px' : '0 3px'));
       var imagen = it.img
@@ -77,7 +78,8 @@
         : (E.enVista() ? E.falta(147, 'Falta la imagen', 14) + W.hueco(18)
           : (conImg ? '<div style="border-radius:14px;background:' + W.C.suave + ';height:147px;"></div>' + W.hueco(18) : ''));
       return '<td class="col" width="' + Math.floor(100 / n) + '%" valign="top" style="padding:' + p + ';">' + imagen +
-        '<div class="alto" style="height:' + alto + 'px;">' + modulo(it.mod) + W.h3(it.t || '', 18) +
+        // Sin enlaces no hace falta alinear nada: el texto ocupa lo que ocupa.
+        '<div class="alto" style="' + (conCta ? 'height:' + alto + 'px;' : '') + '">' + modulo(it.mod) + W.h3(it.t || '', 18) +
         (it.d ? W.hueco(8) + W.parrafo(it.d, { size: 15 }) : '') + '</div>' +
         (it.cta ? W.hueco(14) + W.enlaceAzul(it.cta, it.ctaUrl) : '') + W.hueco(32) + '</td>';
     }).join('');
@@ -86,6 +88,25 @@
   function modulo(t) {
     if (!t) return '';
     return '<p style="margin:0 0 10px;color:' + W.C.azul + ';font-size:12px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;">' + E.esc(String(t).toUpperCase()) + '</p>';
+  }
+  /* Banner con foto de fondo y el texto en HTML encima (VML para Outlook). */
+  function bannerFoto(d) {
+    var f = E.url(d.banFondo);
+    var pills = String(d.banPills || '').split(/\r?\n/).map(function (t) { return t.trim(); }).filter(Boolean).map(function (t) {
+      return '<span style="display:inline-block;margin:0 4px 10px;padding:9px 16px;border-radius:999px;background:#ffffff;color:' + W.C.azul +
+        ';font-size:14px;font-weight:600;line-height:18px;white-space:nowrap;">' + E.esc(t) + '</span>';
+    }).join('');
+    var interior = W.h2(d.banTitulo, 'center', 40, '#ffffff', '#cfe0ff') +
+      (d.banTexto ? W.hueco(14) + W.parrafo(d.banTexto, { color: '#dbe7ff', size: 17, m: '0 auto', align: 'center', mw: 500, fuerte: '#ffffff' }) : '') +
+      (pills ? W.hueco(26) + '<div style="text-align:center;font-size:0;">' + pills + '</div>' : '') +
+      (d.banCta ? W.hueco(16) + W.boton(d.banCta, d.banUrl, { claro: true, align: 'center' }) : '');
+    return W.fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' +
+      '<td background="' + f + '" bgcolor="#0b3fb8" style="background-color:#0b3fb8;background-image:url(\'' + f + '\');background-size:cover;background-position:50% 50%;border-radius:28px;">' +
+      '<!--[if gte mso 9]><v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:640px;height:340px;">' +
+      '<v:fill type="frame" src="' + f + '" color="#0b3fb8"/><v:textbox inset="0,0,0,0"><![endif]-->' +
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td class="px" align="center" style="padding:56px 40px 46px;">' + interior + '</td></tr></table>' +
+      '<!--[if gte mso 9]></v:textbox></v:rect><![endif]-->' +
+      '</td></tr></table>', '56px 0 0');
   }
   function cabeceraBloque(kicker, titulo, pad) {
     if (!kicker && !titulo) return '';
@@ -265,6 +286,15 @@
         { k: 'mas2Titulo', label: 'Titular del bloque', type: 'textarea', rows: 2, max: 80, def: '', help: AYUDA_GRIS },
         { k: 'items2', label: 'Mejoras', type: 'lista', max: 3, item: ITEM_MEJORA, def: [] }
       ] },
+      { titulo: 'Banner final (opcional)', campos: [
+        { k: 'banFondo', label: 'Foto de fondo', type: 'image', def: '',
+          help: 'Va de fondo con el texto encima, en blanco. Mejor una foto oscura o desenfocada.' },
+        { k: 'banTitulo', label: 'Titular', type: 'textarea', rows: 2, max: 60, def: '' },
+        { k: 'banTexto', label: 'Texto', type: 'textarea', rows: 2, max: 140, def: '' },
+        { k: 'banPills', label: 'Píldoras', type: 'textarea', rows: 3, def: '', help: 'Una por línea.' },
+        { k: 'banCta', label: 'Botón', type: 'text', max: 28, def: '', help: 'Opcional.' },
+        { k: 'banUrl', label: 'Enlace del botón', type: 'url', def: '' }
+      ] },
       { titulo: 'Banda de producto', campos: [
         { k: 'promoTag', label: 'Etiqueta', type: 'text', max: 26, def: 'Playoff Time' },
         { k: 'promoTitulo', label: 'Titular', type: 'textarea', rows: 2, max: 60, def: 'Tu equipo ficha.\n*Tú lo ves claro.*', help: AYUDA_GRIS },
@@ -306,6 +336,7 @@
         h += cab2 + columnasMejoras(its2, cab2 ? '40px 0 0' : '24px 0 0');
       }
 
+      if (d.banTitulo) h += bannerFoto(d);
       if (d.promoTitulo) {
         h += W.fila(W.tarjetaOscura(
           (d.promoTag ? '<p style="margin:0;color:' + W.C.grisOscuro + ';font-size:15px;">' + E.esc(d.promoTag) + '</p>' + W.hueco(14) : '') +
