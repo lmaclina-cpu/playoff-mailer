@@ -1,0 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=block');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--azul:#1d5fe8;--azul2:#e8f0fe;--ink:#111827;--gris:#6b7280;--linea:#e5e7eb;--suave:#f3f5f9;--verde:#16a34a}
+html,body{width:var(--w);height:var(--h);overflow:hidden}
+body{font-family:Inter,sans-serif;color:var(--ink);background:linear-gradient(160deg,#f4f7fd 0%,#e7eefc 100%);-webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center}
+.card{background:#fff;border-radius:28px;box-shadow:0 20px 50px rgba(29,95,232,.12),0 2px 6px rgba(17,24,39,.06)}
+.ico{display:inline-block;vertical-align:middle}

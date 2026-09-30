@@ -1,0 +1,16 @@
+<html><head><link rel="stylesheet" href="base.css"><style>:root{--w:800px;--h:600px}
+.c{width:700px;padding:34px 36px}
+.h{font-size:40px;font-weight:700;letter-spacing:-.02em;margin-bottom:22px}
+.g{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:62px;border-top:2px solid var(--linea);border-left:2px solid var(--linea);position:relative}
+.g div{border-right:2px solid var(--linea);border-bottom:2px solid var(--linea);font-size:20px;color:#9ca3af;padding:4px 8px;text-align:right}
+.bar{position:absolute;height:30px;border-radius:15px;display:flex;align-items:center;gap:8px;padding-left:4px;color:#fff;font-size:18px;font-weight:700}
+.bar span{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:13px}
+body{background:#fff}.card{box-shadow:none;border-radius:0}.c{zoom:1.14;width:700px!important}
+</style></head><body>
+<div class="card c"><div class="h">Ausencias del equipo</div>
+<div class="g" id="g"></div></div>
+<script>
+var g=document.getElementById('g');for(var i=1;i<=28;i++){var d=document.createElement('div');d.textContent=i;g.appendChild(d);}
+var w=(800-100-72-2)/7, bars=[[0,1,5,'#1d5fe8','AM'],[1,2,4,'#f59e0b','JR'],[2,0,3,'#10b981','LC'],[2,4,7,'#1d5fe8','AM'],[3,3,6,'#8b5cf6','PS']];
+bars.forEach(function(b){var e=document.createElement('div');e.className='bar';e.style.cssText='top:'+(b[0]*62+26)+'px;left:'+(b[1]*w+4)+'px;width:'+((b[2]-b[1])*w-8)+'px;background:'+b[3];e.innerHTML='<span>'+b[4]+'</span>';g.appendChild(e);});
+</script></body></html>
