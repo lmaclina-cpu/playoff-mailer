@@ -104,7 +104,7 @@
       '<td background="' + f + '" bgcolor="#0b3fb8" style="background-color:#0b3fb8;background-image:url(\'' + f + '\');background-size:cover;background-position:50% 50%;border-radius:28px;">' +
       '<!--[if gte mso 9]><v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:640px;height:340px;">' +
       '<v:fill type="frame" src="' + f + '" color="#0b3fb8"/><v:textbox inset="0,0,0,0"><![endif]-->' +
-      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td class="px" align="center" style="padding:56px 40px 46px;">' + interior + '</td></tr></table>' +
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td class="px" align="center" style="padding:56px 40px 46px;background:rgba(8,35,110,' + (d.banVelo || 0.35) + ');border-radius:28px;">' + interior + '</td></tr></table>' +
       '<!--[if gte mso 9]></v:textbox></v:rect><![endif]-->' +
       '</td></tr></table>', '56px 0 0');
   }
