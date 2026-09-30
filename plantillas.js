@@ -44,6 +44,48 @@
   var W = window.PM_SAAS;
   var AYUDA_GRIS = 'Lo que pongas entre asteriscos (*así*) sale en gris: es el énfasis de este diseño. El salto de línea se respeta.';
   var MODULO = 'Saber más de este módulo';
+  var ITEM_MEJORA = [
+    { k: 't', label: 'Título', type: 'text', max: 40 },
+    { k: 'd', label: 'Explicación', type: 'textarea', rows: 3, max: 240,
+      help: 'Lo que pongas entre **dos asteriscos** sale en negro. El salto de línea se respeta.' },
+    { k: 'img', label: 'Imagen', type: 'image', proporcion: '4:3',
+      help: 'Al subirla se recorta a 4:3 (desde el centro), así las tres miden igual.' },
+    { k: 'cta', label: 'Texto del enlace', type: 'text', max: 28, def: MODULO },
+    { k: 'ctaUrl', label: 'URL', type: 'url' }
+  ];
+
+  /* Tres mejoras en columnas. En escritorio el texto tiene un alto fijo para que los enlaces
+     queden alineados; se calcula con el texto más largo (unos 24 caracteres por línea en el
+     titular y 26 en la explicación, a 196 px de columna). En móvil el alto es libre. */
+  function columnasMejoras(its, pad) {
+    var n = its.length;
+    var conImg = its.some(function (it) { return it.img; });
+    function lineas(t, porLinea) {
+      return String(t || '').replace(/\*/g, '').split(/\r?\n/).reduce(function (s, l) {
+        return s + Math.max(1, Math.ceil(l.length / porLinea));
+      }, 0);
+    }
+    var alto = Math.max(150, Math.ceil(Math.max.apply(null, its.map(function (it) {
+      return lineas(it.t, 24) * 22 + (it.d ? 8 + lineas(it.d, 26) * 23.25 : 0);
+    })) + 8));
+    var cols = its.map(function (it, i) {
+      var p = n === 1 ? '0' : (i === 0 ? '0 7px 0 0' : (i === n - 1 ? '0 0 0 7px' : '0 3px'));
+      var imagen = it.img
+        ? '<img src="' + E.url(it.img) + '" width="196" alt="" style="width:100%;height:auto;display:block;border-radius:14px;border:1px solid ' + W.C.linea + ';">' + W.hueco(18)
+        : (E.enVista() ? E.falta(147, 'Falta la imagen', 14) + W.hueco(18)
+          : (conImg ? '<div style="border-radius:14px;background:' + W.C.suave + ';height:147px;"></div>' + W.hueco(18) : ''));
+      return '<td class="col" width="' + Math.floor(100 / n) + '%" valign="top" style="padding:' + p + ';">' + imagen +
+        '<div class="alto" style="height:' + alto + 'px;">' + W.h3(it.t || '', 18) +
+        (it.d ? W.hueco(8) + W.parrafo(it.d, { size: 15 }) : '') + '</div>' +
+        (it.cta ? W.hueco(14) + W.enlaceAzul(it.cta, it.ctaUrl) : '') + W.hueco(32) + '</td>';
+    }).join('');
+    return W.fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' + cols + '</tr></table>', pad, true);
+  }
+  function cabeceraBloque(kicker, titulo, pad) {
+    if (!kicker && !titulo) return '';
+    return W.fila((kicker ? '<p style="margin:0;color:' + W.C.gris + ';font-size:15px;text-align:center;">' + E.esc(kicker) + '</p>' + W.hueco(12) : '') +
+      (titulo ? W.h2(titulo, 'center', 40) : ''), pad, true);
+  }
 
   /* ==================== WEBINAR · DISEÑO WEB (el aprobado) ==================== */
   T.push({
@@ -180,10 +222,15 @@
         { k: 'mes', label: 'Mes', type: 'text', max: 24, def: 'Septiembre 2026', help: 'Sale en negrita, al lado de la etiqueta.' },
         { k: 'titular', label: 'Titular', type: 'textarea', rows: 2, max: 80,
           def: 'Lo nuevo de Playoff,\n*en 2 minutos.*', help: AYUDA_GRIS },
-        { k: 'subtitular', label: 'Frase de apoyo', type: 'textarea', rows: 3, max: 200,
-          def: 'Un cambio protagonista, unas cuantas mejoras rápidas y alguna cosa más que merece la pena tener en el radar.' }
+        { k: 'subtitular', label: 'Frase de apoyo', type: 'textarea', rows: 3, max: 400,
+          def: 'Un cambio protagonista, unas cuantas mejoras rápidas y alguna cosa más que merece la pena tener en el radar.',
+          help: 'Una línea en blanco separa párrafos.' },
+        { k: 'nota', label: 'Nota', type: 'textarea', rows: 2, max: 200, def: '',
+          help: 'Opcional. Una línea pequeña debajo, con la campanita. P. ej., dónde ver todas las mejoras.' }
       ] },
       { titulo: 'La novedad destacada', campos: [
+        { k: 'destIntro', label: 'Frase de entrada', type: 'text', max: 90, def: '',
+          help: 'Opcional. Una línea centrada justo antes de la tarjeta.' },
         { k: 'destTag', label: 'Etiqueta', type: 'text', max: 26, def: 'La novedad del mes' },
         { k: 'destTitulo', label: 'Titular', type: 'textarea', rows: 2, max: 80, def: 'Las nóminas ya forman parte de tu Time' },
         { k: 'destTexto', label: 'Explicación', type: 'textarea', rows: 4,
@@ -195,23 +242,22 @@
         { k: 'destUrl', label: 'Enlace del botón', type: 'url', def: 'https://playoffinformatica.com/' }
       ] },
       { titulo: 'Y además', campos: [
-        { k: 'masKicker', label: 'Antetítulo', type: 'text', max: 30, def: 'Y además' },
+        { k: 'masKicker', label: 'Antetítulo', type: 'text', max: 30, def: 'Y además',
+          help: 'Si dejas vacíos antetítulo y titular, las tres mejoras van justo debajo de la destacada.' },
         { k: 'masTitulo', label: 'Titular del bloque', type: 'textarea', rows: 2, max: 80,
           def: 'Mejoras pequeñas.\n*Pero muy de agradecer.*', help: AYUDA_GRIS },
         { k: 'items', label: 'Mejoras', type: 'lista', max: 3,
-          item: [
-            { k: 't', label: 'Título', type: 'text', max: 40 },
-            { k: 'd', label: 'Explicación', type: 'textarea', rows: 2, max: 110 },
-            { k: 'img', label: 'Imagen', type: 'image', proporcion: '4:3',
-              help: 'Al subirla se recorta a 4:3 (desde el centro), así las tres miden igual.' },
-            { k: 'cta', label: 'Texto del enlace', type: 'text', max: 28, def: MODULO },
-            { k: 'ctaUrl', label: 'URL', type: 'url' }
-          ],
+          item: ITEM_MEJORA,
           def: [
             { t: 'Altas masivas desde Excel', d: 'Sube el listado de la temporada y avisamos de los duplicados antes de guardar nada.', cta: MODULO, ctaUrl: 'https://playoffinformatica.com/' },
             { t: 'Avisos de impago automáticos', d: 'Cuando una remesa vuelve, el recibo queda marcado y sale el aviso al socio.', cta: MODULO, ctaUrl: 'https://playoffinformatica.com/' },
             { t: 'Buscador en la ficha del socio', d: 'Encuentra un recibo o un documento sin bajar por toda la ficha.', cta: MODULO, ctaUrl: 'https://playoffinformatica.com/' }
           ] }
+      ] },
+      { titulo: 'Más mejoras (opcional)', campos: [
+        { k: 'mas2Kicker', label: 'Antetítulo', type: 'text', max: 30, def: '' },
+        { k: 'mas2Titulo', label: 'Titular del bloque', type: 'textarea', rows: 2, max: 80, def: '', help: AYUDA_GRIS },
+        { k: 'items2', label: 'Mejoras', type: 'lista', max: 3, item: ITEM_MEJORA, def: [] }
       ] },
       { titulo: 'Banda de producto', campos: [
         { k: 'promoTag', label: 'Etiqueta', type: 'text', max: 26, def: 'Playoff Time' },
@@ -228,8 +274,11 @@
       h += W.logo(d, 'center');
       // Sin botón en la portada: no hay una página de novedades a la que llevar.
       h += W.fila(W.antetitulo(d.eyebrow, d.mes, 'center') + W.hueco(18) + W.h1(d.titular, 'center') +
-        (d.subtitular ? W.hueco(22) + W.parrafo(d.subtitular, { m: '0 auto', align: 'center', mw: 470 }) : ''), '64px 40px 0', true);
+        (d.subtitular ? W.hueco(22) + W.parrafo(d.subtitular, { m: '0 auto', align: 'center', mw: 470 }) : '') +
+        (d.nota ? W.hueco(22) + W.parrafo('\uD83D\uDD14\u00A0 ' + d.nota, { m: '0 auto', align: 'center', mw: 430, size: 14, color: W.C.gris2 }) : ''),
+        '64px 40px 0', true);
 
+      if (d.destIntro) h += W.fila(W.parrafo(d.destIntro, { align: 'center', fuerte: W.C.ink }), '48px 40px 0', true);
       if (d.destTitulo || d.destTexto) {
         var captura = d.destImg
           ? '<tr><td class="encima" style="padding:0 44px;"><img src="' + E.url(d.destImg) + '" width="552" alt="" style="width:100%;display:block;border-radius:12px 12px 0 0;"></td></tr>'
@@ -242,23 +291,13 @@
 
       var its = W.lista(d, 'items').slice(0, 3);
       if (its.length) {
-        h += W.fila('<p style="margin:0;color:' + W.C.gris + ';font-size:15px;text-align:center;">' + E.esc(d.masKicker || '') + '</p>' +
-          W.hueco(12) + W.h2(d.masTitulo || '', 'center', 40), '88px 40px 0', true);
-        var n = its.length;
-        var conImg = its.some(function (it) { return it.img; });
-        var cols = its.map(function (it, i) {
-          var pad = n === 1 ? '0' : (i === 0 ? '0 7px 0 0' : (i === n - 1 ? '0 0 0 7px' : '0 3px'));
-          var imagen = it.img
-            ? '<img src="' + E.url(it.img) + '" width="196" alt="" style="width:100%;height:auto;display:block;border-radius:14px;border:1px solid ' + W.C.linea + ';">' + W.hueco(18)
-            : (E.enVista() ? E.falta(147, 'Falta la imagen', 14) + W.hueco(18)
-              : (conImg ? '<div style="border-radius:14px;background:' + W.C.suave + ';height:147px;"></div>' + W.hueco(18) : ''));
-          // En escritorio el texto tiene alto fijo para que los tres enlaces queden alineados.
-          return '<td class="col" width="' + Math.floor(100 / n) + '%" valign="top" style="padding:' + pad + ';">' + imagen +
-            '<div class="alto" style="height:150px;">' + W.h3(it.t || '', 18) +
-            (it.d ? W.hueco(8) + W.parrafo(it.d, { size: 15 }) : '') + '</div>' +
-            (it.cta ? W.hueco(14) + W.enlaceAzul(it.cta, it.ctaUrl) : '') + W.hueco(32) + '</td>';
-        }).join('');
-        h += W.fila('<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' + cols + '</tr></table>', '40px 0 0', true);
+        var cab = cabeceraBloque(d.masKicker, d.masTitulo, '88px 40px 0');
+        h += cab + columnasMejoras(its, cab ? '40px 0 0' : '56px 0 0');
+      }
+      var its2 = W.lista(d, 'items2').slice(0, 3);
+      if (its2.length) {
+        var cab2 = cabeceraBloque(d.mas2Kicker, d.mas2Titulo, '56px 40px 0');
+        h += cab2 + columnasMejoras(its2, cab2 ? '40px 0 0' : '24px 0 0');
       }
 
       if (d.promoTitulo) {

@@ -153,6 +153,8 @@ normales. Los envíos y las imágenes no se pierden: están en Supabase.
 - `requirements.txt`, `render.yaml` — lo que necesita Render para desplegarla.
 - `wordpress-snippet.php` — el tipo de contenido donde se guardan los envíos.
 - `ponentes/` — las fotos fijas que salen en el selector de webinars.
+- `envios/` — envíos montados fuera de la app (el copy en JSON) y `pintar.js` para
+  sacar su HTML: `node envios/pintar.js envios/x.json salida.html --vista`.
 - `ref/` — las plantillas originales del zip, como referencia.
 
 Para añadir una plantilla nueva o cambiar un bloque, se toca `plantillas.js`.
