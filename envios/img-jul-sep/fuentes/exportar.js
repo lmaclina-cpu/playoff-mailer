@@ -1,6 +1,6 @@
 const { chromium } = require('playwright');
 const dir = __dirname, salida = require('path').join(__dirname, '..');
-const piezas = [['reenviar',1200,720],['segmenta',800,600],['plazas',800,600],['reserva',800,600],['ausencias',800,600],['documentos',800,600],['envios',800,600]];
+const piezas = [['reenviar',1200,720],['segmenta',800,600],['plazas',800,600],['reserva',800,600],['ausencias',800,600],['documentos',800,600],['envios',800,600],['ausencias-destacada',1200,720],['reenviar-col',800,600]];
 (async () => {
   const b = await chromium.launch();
   for (const [n, w, h] of piezas) {

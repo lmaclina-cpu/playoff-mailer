@@ -1,0 +1,42 @@
+<html><head><link rel="stylesheet" href="base.css"><style>:root{--w:1200px;--h:720px}
+.bg{position:absolute;inset:0;background:#f5f7fb;filter:blur(3px);transform:scale(1.02)}
+.nav{height:78px;background:#1d4ed8;display:flex;align-items:center;gap:34px;padding:0 30px;color:#fff;font-size:22px;font-weight:600}
+.nav .lg{width:40px;height:40px;border-radius:50%;border:6px solid #fff}.nav .bs{background:rgba(255,255,255,.18);border-radius:10px;padding:10px 60px 10px 18px;font-weight:400}
+.nav .act{background:rgba(0,0,0,.18);padding:26px 16px}
+.hd{display:flex;align-items:center;gap:14px;padding:26px 36px;background:#fff}.hd .ti{font-size:32px;font-weight:700;margin-right:auto}
+.bt{font-size:20px;font-weight:600;padding:12px 20px;border-radius:10px}.bt.g{border:2px solid #e5e7eb}.bt.b{background:#1d5fe8;color:#fff}
+.tabs{display:flex;gap:34px;padding:0 36px;background:#fff;border-bottom:2px solid #e5e7eb;font-size:21px;font-weight:600;color:#4b5563}.tabs span{padding:14px 0}.tabs .on{color:#1d5fe8;border-bottom:4px solid #1d5fe8}
+.cuerpo{display:flex;gap:30px;padding:30px 36px}
+.stats{display:flex;gap:18px}.stats div{width:150px;height:150px;background:#fff;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.stats b{font-size:52px}.stats i{font-style:normal;font-size:19px;margin-top:4px}
+.prev{flex:1;background:#fff;border-radius:14px;padding:26px;box-shadow:0 2px 6px rgba(0,0,0,.06)}.prev .pb{height:120px;background:#dbe6fb;border-radius:10px;margin-bottom:20px}.prev .l{height:16px;background:#e5e7eb;border-radius:8px;margin-bottom:14px}
+.velo{position:absolute;inset:0;background:rgba(15,23,42,.38)}
+.m{position:absolute;left:150px;right:150px;top:96px;bottom:-40px;padding:38px 44px;box-shadow:0 30px 80px rgba(15,23,42,.35)}
+.t{display:flex;align-items:center;gap:20px;font-size:38px;font-weight:700;letter-spacing:-.02em}
+.b{width:70px;height:70px;border-radius:50%;background:var(--azul2);display:flex;align-items:center;justify-content:center}
+.mes{margin-left:auto;font-size:26px;font-weight:600;color:var(--gris)}
+.ley{display:flex;gap:12px;margin:22px 0 20px}.ley span{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:600;background:var(--suave);border-radius:999px;padding:8px 18px}.ley i{width:16px;height:16px;border-radius:50%}
+.g{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:78px;border-top:2px solid var(--linea);border-left:2px solid var(--linea);position:relative}
+.g div.d{border-right:2px solid var(--linea);border-bottom:2px solid var(--linea);font-size:20px;color:#9ca3af;padding:6px 10px;text-align:right}
+.bar{position:absolute;height:40px;border-radius:20px;display:flex;align-items:center;gap:10px;padding:0 14px 0 5px;color:#fff;font-size:20px;font-weight:700;white-space:nowrap;overflow:hidden}
+.bar span{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:13px;flex:none}
+</style></head><body>
+<div class="bg">
+ <div class="nav"><span class="lg"></span><span class="bs">Buscar…</span><span class="act">Asociados</span><span>Finanzas</span><span>Comunicación</span><span>Actividades</span><span>Otros</span></div>
+ <div class="hd"><span class="ti">Registro horario / Ausencias</span><span class="bt b">Solicitar ausencia</span></div>
+ <div class="tabs"><span>Mis ausencias</span><span class="on">Calendario</span><span>Solicitudes</span><span>Saldos</span></div>
+ <div class="cuerpo">
+  <div class="stats"><div><b>23</b><i>Generado</i></div><div><b>12</b><i>Disponible</i></div><div><b>11</b><i>Aprobado</i></div></div>
+  <div class="prev"><div class="pb"></div><div class="l" style="width:70%"></div><div class="l"></div><div class="l" style="width:85%"></div><div class="l" style="width:60%"></div><div class="l" style="width:78%"></div></div>
+ </div>
+</div><div class="velo"></div>
+<div class="card m">
+ <div class="t"><span class="b"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1d5fe8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Ausencias del equipo<span class="mes">Agosto 2026</span></div>
+ <div class="ley"><span><i style="background:#1d5fe8"></i>Vacaciones</span><span><i style="background:#f59e0b"></i>Asuntos propios</span><span><i style="background:#10b981"></i>Formación</span></div>
+ <div class="g" id="g"></div>
+</div>
+<script>
+var g=document.getElementById('g');for(var i=1;i<=35;i++){var d=document.createElement('div');d.className='d';d.textContent=i<=31?i:"";g.appendChild(d);}
+var w=(1200-300-88-2)/7, bars=[[0,0,5,'#1d5fe8','AM','Ana'],[1,1,3,'#f59e0b','JR','Jordi'],[1,4,7,'#10b981','LC','Laia'],[2,0,4,'#1d5fe8','PS','Pau'],[2,5,7,'#1d5fe8','MG','Marc'],[3,2,6,"#1d5fe8","EV","Elena"],[4,0,3,"#f59e0b","AM","Ana"]];
+bars.forEach(function(b){var e=document.createElement('div');e.className='bar';e.style.cssText='top:'+(b[0]*78+30)+'px;left:'+(b[1]*w+5)+'px;width:'+((b[2]-b[1])*w-10)+'px;background:'+b[3];e.innerHTML='<span>'+b[4]+'</span>'+b[5];g.appendChild(e);});
+</script></body></html>

@@ -10,23 +10,15 @@
     "subtitular": "Un verano de mejoras para que gestionar tu entidad te lleve menos tiempo: comunicación más precisa, inscripciones más claras y más control de tu equipo con Playoff Time.",
     "nota": "Todas las mejoras, siempre en la campanita de arriba a la derecha de tu Playoff.",
     "destIntro": "Estas son **las 7 más destacadas.**",
-    "destTag": "COMUNICACIONES",
-    "destTitulo": "Reenvía tus comunicados según quién los haya abierto",
-    "destTexto": "Reenvía un comunicado a todos, solo a quienes lo han abierto o **solo a quienes aún no lo han leído**. Sin buscar socio por socio.",
-    "destImg": "img-jul-sep/reenviar.jpg",
+    "destTag": "PLAYOFF TIME",
+    "destTitulo": "Calendario global de ausencias",
+    "destTexto": "Vacaciones, asuntos propios y ausencias de todo el equipo en **un solo calendario de Playoff Time**. Quién está disponible, de un vistazo.",
+    "destImg": "img-jul-sep/ausencias-destacada.jpg",
     "destCta": "Descubrir esta mejora",
-    "destUrl": "https://playoffinformatica.com/envio-comunicados-emails/",
+    "destUrl": "https://playoffinformatica.com/software-control-horario-fichaje-laboral/",
     "masKicker": "",
     "masTitulo": "",
     "items": [
-      {
-        "mod": "Playoff Time",
-        "t": "Calendario global de ausencias",
-        "d": "Vacaciones y ausencias de todo el equipo en un solo calendario de Playoff Time.\n**Quién está disponible, de un vistazo.**",
-        "img": "img-jul-sep/ausencias.jpg",
-        "cta": "",
-        "ctaUrl": ""
-      },
       {
         "mod": "Playoff Time",
         "t": "Documentos laborales en Playoff Time",
@@ -40,6 +32,14 @@
         "t": "Inscripciones más seguras",
         "d": "Reserva temporal de plazas mejorada, también con alta demanda y lista de espera.\n**Menos choques por las últimas plazas.**",
         "img": "img-jul-sep/reserva.jpg",
+        "cta": "",
+        "ctaUrl": ""
+      },
+      {
+        "mod": "Comunicaciones",
+        "t": "Reenvía según quién lo haya abierto",
+        "d": "Reenvía un comunicado a todos, solo a quienes lo abrieron o solo a quienes no.\n**Sin buscar socio por socio.**",
+        "img": "img-jul-sep/reenviar-col.jpg",
         "cta": "",
         "ctaUrl": ""
       }
