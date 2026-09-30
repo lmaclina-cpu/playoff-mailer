@@ -20,18 +20,18 @@
     "masTitulo": "",
     "items": [
       {
-        "mod": "Comunicaciones",
-        "t": "Segmenta mejor tus comunicados",
-        "d": "Excluye audiencias y crea grupos con los inscritos a una actividad.\n**Cada mensaje, solo a quien toca.**",
-        "img": "img-jul-sep/segmenta.jpg",
+        "mod": "Playoff Time",
+        "t": "Calendario global de ausencias",
+        "d": "Vacaciones y ausencias de todo el equipo en un solo calendario de Playoff Time.\n**Quién está disponible, de un vistazo.**",
+        "img": "img-jul-sep/ausencias.jpg",
         "cta": "",
         "ctaUrl": ""
       },
       {
-        "mod": "Actividades",
-        "t": "Muestra las plazas disponibles",
-        "d": "Indica en la preinscripción cuántas plazas quedan en cada subcategoría.\n**Las familias lo saben antes de inscribirse.**",
-        "img": "img-jul-sep/plazas.jpg",
+        "mod": "Playoff Time",
+        "t": "Documentos laborales en Playoff Time",
+        "d": "Nueva sección para centralizar la documentación laboral de cada trabajador.\n**Todo ordenado y en un mismo sitio.**",
+        "img": "img-jul-sep/documentos.jpg",
         "cta": "",
         "ctaUrl": ""
       },
@@ -48,18 +48,18 @@
     "mas2Titulo": "Más mejoras.\n*Para tu día a día.*",
     "items2": [
       {
-        "mod": "Playoff Time",
-        "t": "Calendario global de ausencias",
-        "d": "Vacaciones y ausencias de todo el equipo en un solo calendario de Playoff Time.\n**Quién está disponible, de un vistazo.**",
-        "img": "img-jul-sep/ausencias.jpg",
+        "mod": "Comunicaciones",
+        "t": "Segmenta mejor tus comunicados",
+        "d": "Excluye audiencias y crea grupos con los inscritos a una actividad.\n**Cada mensaje, solo a quien toca.**",
+        "img": "img-jul-sep/segmenta.jpg",
         "cta": "",
         "ctaUrl": ""
       },
       {
-        "mod": "Playoff Time",
-        "t": "Documentos laborales en Playoff Time",
-        "d": "Nueva sección para centralizar la documentación laboral de cada trabajador.\n**Todo ordenado y en un mismo sitio.**",
-        "img": "img-jul-sep/documentos.jpg",
+        "mod": "Preinscripciones",
+        "t": "Muestra las plazas disponibles",
+        "d": "Indica en la preinscripción cuántas plazas quedan en cada subcategoría.\n**Las familias lo saben antes de inscribirse.**",
+        "img": "img-jul-sep/plazas.jpg",
         "cta": "",
         "ctaUrl": ""
       },
