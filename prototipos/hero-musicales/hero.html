@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<!-- Hero del email de sociedades musicales. Se renderiza a 592×414 con escala 2 (1184×828) con render.cjs. -->
+<!-- Hero del email de sociedades musicales. Misma maqueta que hero-excursionismo. Se renderiza a 592×414 con escala 2 (1184×828) con render.cjs. -->
 <style>
   :root{--azul:#006BEE;--tinta:#0B0B0C;--gris:#6B6E75;--linea:#ECEDF0}
   *{box-sizing:border-box;margin:0;padding:0}
@@ -15,32 +15,31 @@
     backdrop-filter:blur(14px) saturate(170%);-webkit-backdrop-filter:blur(14px) saturate(170%);
     border:1px solid rgba(255,255,255,.7);
     box-shadow:0 8px 20px rgba(12,20,40,.14),0 1px 4px rgba(12,20,40,.08),inset 0 1px 0 rgba(255,255,255,.85)}
-  .barra{display:flex;align-items:center;gap:5px;padding:3px 6px 6px;font-size:7px;line-height:9px;font-weight:500;color:#3F4248}
-  .barra.clara{color:rgba(255,255,255,.95);text-shadow:0 1px 2px rgba(0,0,0,.25)}
+  .barra{display:flex;align-items:center;gap:5px;padding:3px 6px 6px;font-size:7px;line-height:9px;font-weight:500;color:rgba(255,255,255,.95);text-shadow:0 1px 2px rgba(0,0,0,.25)}
+  .barra.oscura{color:#3F4248;text-shadow:none}
   .barra i{width:4px;height:4px;border-radius:4px;background:currentColor;display:block}
+  .barra span{opacity:.7;font-weight:400}
   .panel{background:#FFFFFF;border-radius:9px;overflow:hidden}
 
-  /* Ficha del músico */
-  .ficha{left:18px;top:16px;width:158px}
+  /* Ficha del socio */
+  .ficha{left:18px;top:16px;width:160px}
   .ficha h4{font-size:8.5px;line-height:11px;font-weight:600;padding:8px 10px 7px;border-bottom:1px solid var(--linea)}
+  .ficha .sub{font-size:6.5px;line-height:8px;color:var(--gris);padding:0 10px 7px;border-bottom:1px solid var(--linea)}
   .fila{padding:5px 10px;border-bottom:1px solid var(--linea);font-size:6.5px;line-height:8px}
   .fila:last-child{border-bottom:0}
   .fila dt{color:var(--gris)}
   .fila dd{font-size:7.5px;line-height:10px;font-weight:600;margin-top:2px}
-  .etiqueta{display:inline-block;font-size:6px;line-height:7px;font-weight:600;padding:2px 4px;border-radius:3px;background:#E8F1FE;color:var(--azul);margin-left:3px;vertical-align:1px}
+  .fila dd small{font-weight:400;color:var(--gris)}
 
-  /* Convocatoria */
-  .convocatoria{right:22px;top:128px;width:196px}
-  .convocatoria .cuerpo{padding:8px 10px 9px}
-  .convocatoria h3{font-size:8.5px;line-height:10px;font-weight:600}
-  .dato{display:flex;align-items:center;gap:3px;font-size:6.5px;line-height:8px;color:#3F4248;margin-top:4px}
-  .dato svg{width:8px;height:8px;flex:none}
+  /* Actividad */
+  .actividad{right:22px;top:128px;width:196px}
+  .tarjeta{display:flex;gap:8px;padding:7px;align-items:center}
+  .miniatura{width:58px;height:58px;border-radius:7px;background:#D9DCE1 url(miniatura.jpg) center 30%/cover;flex:none}
+  .tarjeta h3{font-size:8.5px;line-height:10px;font-weight:600;margin-bottom:4px}
+  .dato{display:flex;align-items:center;gap:3px;font-size:6.5px;line-height:8px;color:#3F4248;margin-bottom:3px}
   .dato b{color:var(--tinta)}
-  .reparto{display:flex;height:4px;border-radius:4px;overflow:hidden;margin-top:8px;background:var(--linea)}
-  .reparto span{display:block;height:100%}
-  .leyenda{display:flex;justify-content:space-between;margin-top:5px;font-size:6.3px;line-height:8px;color:var(--gris)}
-  .leyenda b{color:var(--tinta);font-weight:600}
-  .punto{display:inline-block;width:5px;height:5px;border-radius:5px;margin-right:2px;vertical-align:0}
+  .dato svg{width:8px;height:8px;flex:none}
+  .boton{display:inline-block;margin-top:3px;font-size:6.5px;line-height:8px;font-weight:500;padding:4px 9px;border-radius:999px;background:var(--azul);color:#FFFFFF}
 
   /* Cuotas */
   .cuotas{left:150px;bottom:24px;width:214px}
@@ -58,37 +57,40 @@
 <div class="lienzo">
   <div class="foto"></div>
 
-  <!-- Ficha del músico -->
+  <!-- Ficha del socio -->
   <div class="vidrio ficha">
-    <div class="barra"><i></i>Ficha del músico</div>
+    <div class="barra oscura"><i></i>Ficha del socio</div>
     <div class="panel">
-      <h4>Marta Soler Pons</h4>
+      <h4>Lucía Martín Ruiz</h4>
       <dl>
-        <div class="fila"><dt>Formación</dt><dd>Coro juvenil <span class="etiqueta">Soprano</span></dd></div>
-        <div class="fila"><dt>También en</dt><dd>Escuela de música · Piano</dd></div>
+        <div class="fila"><dt>Cuerda</dt><dd>Soprano <small>· primera voz</small></dd></div>
+        <div class="fila"><dt>Formación</dt><dd>Coro juvenil <small>· desde 2019</small></dd></div>
       </dl>
     </div>
   </div>
 
-  <!-- Convocatoria -->
-  <div class="vidrio convocatoria">
-    <div class="barra clara"><i></i>Convocatoria · Coro juvenil</div>
-    <div class="panel cuerpo">
-      <h3>Ensayo general de Santa Cecilia</h3>
-      <p class="dato"><svg viewBox="0 0 24 24" fill="none" stroke="#006BEE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><b>Sáb 21 nov · 18:00</b> · Auditorio</p>
-      <div class="reparto"><span style="width:76%;background:#006BEE"></span><span style="width:10%;background:#C9CCD2"></span></div>
-      <p class="leyenda"><span><i class="punto" style="background:#006BEE"></i><b>32</b> asisten</span><span><i class="punto" style="background:#C9CCD2"></i><b>4</b> no pueden</span><span><b>6</b> sin responder</span></p>
+  <!-- Actividad -->
+  <div class="vidrio actividad">
+    <div class="barra"><i></i>Próxima actividad</div>
+    <div class="panel tarjeta">
+      <div class="miniatura"></div>
+      <div>
+        <h3>Taller de canto moderno</h3>
+        <p class="dato"><svg viewBox="0 0 24 24" fill="none" stroke="#006BEE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><b>15 nov · 10:30</b></p>
+        <p class="dato"><svg viewBox="0 0 24 24" fill="none" stroke="#006BEE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.8-3.3 3.2-5 6-5s5.2 1.7 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16.5 14.2c2.4.2 4 1.8 4.5 4.8"/></svg>Quedan <b>6 plazas</b></p>
+        <span class="boton">Inscribirme</span>
+      </div>
     </div>
   </div>
 
   <!-- Cuotas -->
   <div class="vidrio cuotas">
-    <div class="barra"><i></i>Cuotas · noviembre</div>
+    <div class="barra oscura"><i></i>Cuotas · noviembre</div>
     <div class="panel">
       <table>
         <tr><th>Socio</th><th>Estado</th><th class="num">Importe</th></tr>
-        <tr><td>Soler Pons</td><td><span class="chip pagado">Pagado</span></td><td class="num">25 €</td></tr>
-        <tr><td>Ibáñez Roig</td><td><span class="chip pendiente">Pendiente</span></td><td class="num">25 €</td></tr>
+        <tr><td>Martín Ruiz</td><td><span class="chip pagado">Pagado</span></td><td class="num">25 €</td></tr>
+        <tr><td>Gómez Navarro</td><td><span class="chip pendiente">Pendiente</span></td><td class="num">25 €</td></tr>
       </table>
     </div>
   </div>
