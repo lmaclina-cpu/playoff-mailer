@@ -1,0 +1,95 @@
+<!doctype html>
+<!-- Las tres pantallas de Playoff Time que van en el hero, rehechas en HTML para que salgan nítidas.
+     componer.py las fotografía una a una (fondo transparente, a 2x) y las monta sobre la foto. -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:transparent;font-family:Inter,Arial,sans-serif;color:#111827;-webkit-font-smoothing:antialiased;padding:20px;display:flex;gap:20px;align-items:flex-start}
+  .card{background:#fff;border-radius:22px;overflow:hidden}
+  .btn{height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:9px;font-size:15px;font-weight:500}
+  .row{display:flex;justify-content:space-between;align-items:center}
+  .dot{width:9px;height:9px;border-radius:9px;display:inline-block}
+  .lbl{font-size:14px;font-weight:500;color:#1F2937;margin-bottom:8px}
+  .field{height:44px;border:1px solid #D1D5DB;border-radius:10px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;font-size:15px;color:#111827}
+
+  /* 1 · Registro horario */
+  #registro{width:290px}
+  #registro .top{padding:20px 20px 14px;display:flex;align-items:center;gap:14px;font-size:18px;font-weight:500;border-bottom:1px solid #F1F2F5}
+  #registro .body{padding:22px 22px 22px;text-align:center}
+
+  /* 2 · Descargar registros */
+  #descargar{width:310px;padding:22px}
+  /* 3 · Departamento */
+  #departamento{width:330px;padding:20px}
+  .person{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;white-space:nowrap}
+  .av{width:40px;height:40px;border-radius:40px;flex:none}
+  .trash{width:36px;height:36px;border:1px solid #D1D5DB;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+
+<div class="card" id="registro">
+  <div class="top">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+    Registro horario
+  </div>
+  <div class="body">
+    <p style="font-size:15px;font-weight:500;color:#16A34A;"><span class="dot" style="background:#22C55E;margin-right:7px;"></span>Estás trabajando</p>
+    <p style="font-size:34px;font-weight:600;letter-spacing:-0.8px;margin-top:10px;">5h 50min</p>
+    <p style="font-size:14px;color:#374151;margin-top:6px;">Tiempo restante 2h 10min</p>
+    <div class="btn" style="margin-top:18px;border:1px solid #D1D5DB;color:#111827;">
+      <svg width="12" height="13" viewBox="0 0 12 13"><rect x="1" y="0" width="3.6" height="13" rx="1" fill="#111827"/><rect x="7.4" y="0" width="3.6" height="13" rx="1" fill="#111827"/></svg>Pausar
+    </div>
+    <div class="btn" style="margin-top:10px;background:#1D6FF2;color:#fff;">
+      <span style="width:12px;height:12px;background:#fff;border-radius:2px;display:inline-block"></span>Salir
+    </div>
+    <div class="row" style="margin-top:18px;font-size:14px;color:#4B5563;"><span><span class="dot" style="background:#4ADE80;margin-right:8px;"></span>Trabajando</span><span>5h 25min</span></div>
+    <div class="row" style="margin-top:10px;font-size:14px;color:#4B5563;"><span><span class="dot" style="background:#FBA94C;margin-right:8px;"></span>En pausa</span><span>0h 25min</span></div>
+  </div>
+</div>
+
+<div class="card" id="descargar">
+  <div class="row" style="align-items:flex-start;">
+    <div style="width:46px;height:46px;border-radius:46px;background:#E5EFFE;display:flex;align-items:center;justify-content:center;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1D6FF2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M6 10l6 6 6-6M5 21h14"/></svg>
+    </div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
+  </div>
+  <p style="font-size:19px;font-weight:600;margin-top:16px;letter-spacing:-0.3px;">Descargar registros horarios</p>
+  <p class="lbl" style="margin-top:16px;">Formato del archivo</p>
+  <div class="field">PDF <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+  <div style="display:flex;gap:12px;margin-top:14px;">
+    <div style="flex:1"><p class="lbl">Desde</p><div class="field" style="font-size:14px;">01/09/2026</div></div>
+    <div style="flex:1"><p class="lbl">Hasta</p><div class="field" style="font-size:14px;">30/09/2026</div></div>
+  </div>
+  <p class="lbl" style="margin-top:14px;">Trabajadores</p>
+  <div class="field">Todo el equipo <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 4h8L6 9z" fill="#9CA3AF"/></svg></div>
+  <div style="display:flex;gap:12px;margin-top:20px;">
+    <div class="btn" style="flex:1;border:1px solid #E5E7EB;color:#9CA3AF;">Cancelar</div>
+    <div class="btn" style="flex:1;background:#1D6FF2;color:#fff;">Descargar</div>
+  </div>
+</div>
+
+<div class="card" id="departamento">
+  <p class="lbl">Nombre del departamento</p>
+  <div class="field">Customer Success</div>
+  <p class="lbl" style="margin-top:20px;">Asignar departamento a trabajadores</p>
+  <div class="field" style="justify-content:flex-start;gap:10px;color:#6B7280;">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Buscar trabajador
+  </div>
+  <div style="background:#F3F4F6;border-radius:12px;margin-top:14px;">
+    <div class="person" style="border-bottom:1px solid #E5E7EB;">
+      <div style="display:flex;align-items:center;gap:12px;"><div class="av" style="background:#1D6FF2;color:#fff;font-size:19px;display:flex;align-items:center;justify-content:center;">R</div><span style="font-size:15px;font-weight:600;color:#374151;">Raquel Perea González</span></div>
+      <div class="trash"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></div>
+    </div>
+    <div class="person">
+      <div style="display:flex;align-items:center;gap:12px;"><img class="av" src="avatar-pablo.png" alt=""><span style="font-size:15px;font-weight:600;color:#374151;">Pablo Herrero Querol</span></div>
+      <div class="trash"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
