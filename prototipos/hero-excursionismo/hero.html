@@ -8,7 +8,7 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{width:592px;height:414px;background:#FFFFFF;font-family:Inter,Arial,sans-serif;color:var(--tinta);-webkit-font-smoothing:antialiased}
   .lienzo{position:relative;width:592px;height:414px;overflow:hidden}
-  .foto{position:absolute;left:0;top:0;width:520px;height:354px;border-radius:16px;background:url(foto.jpg) 40% 50%/cover}
+  .foto{position:absolute;left:0;top:0;width:520px;height:354px;border-radius:16px;background:url(foto.jpg) center/cover}
 
   /* Ventana de cristal */
   .vidrio{position:absolute;padding:4px;border-radius:13px;background:rgba(255,255,255,.28);
@@ -22,41 +22,35 @@
   .panel{background:#FFFFFF;border-radius:9px;overflow:hidden}
 
   /* Ficha del socio */
-  .ficha{left:16px;top:22px;width:212px}
-  .ficha h4{display:flex;align-items:center;gap:5px;font-size:8px;line-height:10px;font-weight:600;padding:8px 10px 7px;border-bottom:1px solid var(--linea)}
-  .fila{display:flex;justify-content:space-between;gap:8px;padding:5px 10px;border-bottom:1px solid var(--linea);font-size:7px;line-height:9px}
+  .ficha{left:18px;top:16px;width:170px}
+  .ficha h4{font-size:8.5px;line-height:11px;font-weight:600;padding:8px 10px 7px;border-bottom:1px solid var(--linea)}
+  .ficha .sub{font-size:6.5px;line-height:8px;color:var(--gris);padding:0 10px 7px;border-bottom:1px solid var(--linea)}
+  .fila{padding:5px 10px;border-bottom:1px solid var(--linea);font-size:6.5px;line-height:8px}
   .fila:last-child{border-bottom:0}
-  .fila dt{color:var(--gris);white-space:nowrap}
-  .fila dd{font-weight:600;text-align:right}
-  .fila.nueva{background:#F2F7FF}
-  .fila.nueva dd small{display:block;font-weight:400;color:var(--gris);font-size:6.3px;line-height:8px;margin-top:1px}
+  .fila dt{color:var(--gris)}
+  .fila dd{font-size:7.5px;line-height:10px;font-weight:600;margin-top:2px}
+  .fila dd small{font-weight:400;color:var(--gris)}
 
   /* Actividad */
-  .actividad{right:0;top:10px;width:286px}
-  .tarjeta{display:flex;gap:9px;padding:8px}
-  .miniatura{width:92px;height:96px;border-radius:7px;background:url(miniatura.jpg) center/cover;flex:none}
-  .tarjeta h3{font-size:9px;line-height:11px;font-weight:600;letter-spacing:-.1px;margin:1px 0 6px}
-  .dato{display:flex;align-items:center;gap:4px;font-size:7px;line-height:9px;color:#3F4248;margin-bottom:4px}
+  .actividad{right:0;top:12px;width:206px}
+  .tarjeta{display:flex;gap:8px;padding:7px;align-items:center}
+  .miniatura{width:58px;height:58px;border-radius:7px;background:url(miniatura.jpg) center/cover;flex:none}
+  .tarjeta h3{font-size:8.5px;line-height:10px;font-weight:600;margin-bottom:4px}
+  .dato{display:flex;align-items:center;gap:3px;font-size:6.5px;line-height:8px;color:#3F4248;margin-bottom:3px}
   .dato b{color:var(--tinta)}
-  .dato svg{width:9px;height:9px;flex:none}
-  .botones{display:flex;gap:5px;margin-top:7px}
-  .botones a{font-size:7px;line-height:9px;font-weight:500;padding:5px 8px;border-radius:999px;text-decoration:none}
-  .b1{border:1px solid #D4D6DB;color:var(--tinta)}
-  .b2{background:var(--azul);color:#FFFFFF;border:1px solid var(--azul)}
+  .dato svg{width:8px;height:8px;flex:none}
+  .boton{display:inline-block;margin-top:3px;font-size:6.5px;line-height:8px;font-weight:500;padding:4px 9px;border-radius:999px;background:var(--azul);color:#FFFFFF}
 
   /* Cuotas */
-  .cuotas{left:150px;bottom:6px;width:340px}
-  table{width:100%;border-collapse:collapse;font-size:6.6px;line-height:8px}
-  th{font-weight:600;text-align:left;padding:7px 6px 6px;border-bottom:1px solid var(--linea);white-space:nowrap}
-  td{padding:5px 6px;border-bottom:1px solid var(--linea);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .cuotas{left:168px;bottom:8px;width:226px}
+  table{width:100%;border-collapse:collapse;font-size:6.8px;line-height:8px}
+  th{font-weight:600;text-align:left;padding:7px 8px 6px;border-bottom:1px solid var(--linea)}
+  td{padding:5px 8px;border-bottom:1px solid var(--linea);white-space:nowrap;font-variant-numeric:tabular-nums}
   tr:last-child td{border-bottom:0}
   .num{text-align:right}
-  .caja{display:inline-block;width:7px;height:7px;border:1px solid #CFD2D8;border-radius:2px;vertical-align:middle}
-  .caja.si{background:var(--azul);border-color:var(--azul)}
   .chip{display:inline-block;font-size:6px;line-height:7px;font-weight:600;padding:2px 4px;border-radius:3px;color:#FFFFFF}
   .pagado{background:#2E9D57}
   .pendiente{background:#FFF1D6;color:#9A5B00}
-  .anulado{background:#3F4553}
 </style>
 </head>
 <body>
@@ -65,44 +59,38 @@
 
   <!-- Ficha del socio -->
   <div class="vidrio ficha">
-    <div class="barra"><i></i>Socios <span>· Laura Puig Serra</span></div>
+    <div class="barra oscura"><i></i>Ficha del socio</div>
     <div class="panel">
-      <h4><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="#0B0B0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Datos personales</h4>
+      <h4>Laura Puig Serra</h4>
       <dl>
-        <div class="fila"><dt>Tarjeta sanitaria</dt><dd>PUSE 0841 0237 12</dd></div>
-        <div class="fila"><dt>Fecha de nacimiento</dt><dd>23-10-1981 (44 años)</dd></div>
-        <div class="fila nueva"><dt>Alergias</dt><dd>Frutos secos<small>Lleva adrenalina (EpiPen)</small></dd></div>
-        <div class="fila nueva"><dt>Contacto de emergencia</dt><dd>Jordi Vila (pareja)<small>612 48 73 90</small></dd></div>
-        <div class="fila"><dt>Fecha de alta</dt><dd>Desde 10-10-2014</dd></div>
-        <div class="fila"><dt>Nacionalidad</dt><dd>España</dd></div>
+        <div class="fila"><dt>Alergias</dt><dd>Frutos secos <small>· lleva EpiPen</small></dd></div>
+        <div class="fila"><dt>Contacto de emergencia</dt><dd>Jordi Vila <small>· pareja</small></dd></div>
       </dl>
     </div>
   </div>
 
   <!-- Actividad -->
   <div class="vidrio actividad">
-    <div class="barra oscura"><i></i>Portal de inscripción <span>· Salidas 2027</span></div>
+    <div class="barra oscura"><i></i>Próxima salida</div>
     <div class="panel tarjeta">
       <div class="miniatura"></div>
       <div>
-        <h3>Ruta de los lagos · Circular de 14 km</h3>
-        <p class="dato"><svg viewBox="0 0 24 24" fill="none" stroke="#006BEE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>Fecha: <b>14/03/2027 a las 07:30</b></p>
-        <p class="dato"><svg viewBox="0 0 24 24" fill="none" stroke="#006BEE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="9" cy="7" rx="6" ry="3"/><path d="M3 7v5c0 1.7 2.7 3 6 3s6-1.3 6-3V7"/><path d="M9 15v2c0 1.7 2.7 3 6 3s6-1.3 6-3v-5c0-1.7-2.7-3-6-3"/></svg>Precio: <b>desde 12 €</b></p>
-        <p class="dato"><svg viewBox="0 0 24 24" fill="none" stroke="#006BEE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.8-3.3 3.2-5 6-5s5.2 1.7 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16.5 14.2c2.4.2 4 1.8 4.5 4.8"/></svg>Plazas libres: <b>8</b></p>
-        <div class="botones"><a class="b1">Más información</a><a class="b2">Inscribirme</a></div>
+        <h3>Ruta de los lagos</h3>
+        <p class="dato"><svg viewBox="0 0 24 24" fill="none" stroke="#006BEE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><b>14 mar · 07:30</b></p>
+        <p class="dato"><svg viewBox="0 0 24 24" fill="none" stroke="#006BEE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.8-3.3 3.2-5 6-5s5.2 1.7 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16.5 14.2c2.4.2 4 1.8 4.5 4.8"/></svg>Quedan <b>8 plazas</b></p>
+        <span class="boton">Inscribirme</span>
       </div>
     </div>
   </div>
 
   <!-- Cuotas -->
   <div class="vidrio cuotas">
-    <div class="barra"><i></i>Recibos <span>· Cuota anual 2027</span></div>
+    <div class="barra"><i></i>Cuota anual 2027</div>
     <div class="panel">
       <table>
-        <tr><th><span class="caja"></span></th><th>Fecha emisión</th><th>Estado</th><th>Vencimiento</th><th class="num">Nº recibo</th><th>Apellidos</th></tr>
-        <tr><td><span class="caja"></span></td><td>01-01-2027</td><td><span class="chip pagado">Pagado</span></td><td></td><td class="num">5102</td><td>Puig Serra</td></tr>
-        <tr><td><span class="caja si"></span></td><td>01-01-2027</td><td><span class="chip pendiente">Pendiente</span></td><td>31-01-2027</td><td class="num">5103</td><td>Ferrer Casals</td></tr>
-        <tr><td><span class="caja"></span></td><td>01-01-2027</td><td><span class="chip pagado">Pagado</span></td><td></td><td class="num">5104</td><td>Roca Martí</td></tr>
+        <tr><th>Socio</th><th>Estado</th><th class="num">Importe</th></tr>
+        <tr><td>Puig Serra</td><td><span class="chip pagado">Pagado</span></td><td class="num">45 €</td></tr>
+        <tr><td>Ferrer Casals</td><td><span class="chip pendiente">Pendiente</span></td><td class="num">45 €</td></tr>
       </table>
     </div>
   </div>
