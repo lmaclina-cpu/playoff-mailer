@@ -12,16 +12,22 @@ Las pantallas salen de ventanas.html con `node capturar.js`. Para moverlas, se t
 """
 import sys
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
+from PIL import Image, ImageDraw, ImageFilter, ImageEnhance, ImageOps
 
-ANCHO, ALTO = 1184, 872   # proporción de la foto de la oficina (1216 × 896)
+# El hero mide 1184 px de ancho (el email lo muestra a 592). La foto va dentro con un margen blanco
+# alrededor, y las ventanas sobresalen por ese margen: se salen de la foto, no se cortan con ella.
+ANCHO = 1184
+MARGEN = 72
+FOTO_W = ANCHO - 2 * MARGEN
+FOTO_H = round(FOTO_W * 896 / 1216)   # proporción de la foto de la oficina (1216 × 896)
+ALTO = FOTO_H + 2 * MARGEN
 
 # (pantalla, x, y, ancho de la pantalla) en píxeles del hero. Pensado para la foto del chico con el portátil:
 # su cara y las manos en el teclado quedan libres; las ventanas tapan techo, ventanas y la silla.
 VENTANAS = [
-    ('registro.png', 36, 36, 268),
-    ('descargar.png', 902, 36, 246),
-    ('departamento.png', 868, 590, 280),
+    ('registro.png', 22, 120, 268),
+    ('descargar.png', 884, 22, 246),
+    ('departamento.png', 852, ALTO - 30 - 317, 280),
 ]
 
 MARCO = 14          # grosor del cristal alrededor de la pantalla
@@ -65,13 +71,15 @@ def ventana(hero, pantalla, x, y, ancho):
 
     # Sombra suave para despegarla de la foto.
     sombra = Image.new('L', hero.size, 0)
-    sombra.paste(forma, (x, y + 16))
-    sombra = sombra.filter(ImageFilter.GaussianBlur(26)).point(lambda v: v * 0.22)
+    sombra.paste(forma, (x, y + 8))
+    sombra = sombra.filter(ImageFilter.GaussianBlur(12)).point(lambda v: v * 0.16)
     hero.paste(Image.new('RGB', hero.size, (10, 20, 40)), (0, 0), sombra)
 
     # Cristal: lo de detrás, desenfocado, más claro y algo más saturado.
     m = DESENFOQUE * 3
-    zona = hero.crop((x - m, y - m, x + w + m, y + h + m)).filter(ImageFilter.GaussianBlur(DESENFOQUE))
+    # Se amplía con blanco para que el cristal que sobresale no recoja negro de fuera del lienzo.
+    zona = ImageOps.expand(hero, m, fill=(255, 255, 255)).crop((x, y, x + w + 2 * m, y + h + 2 * m))
+    zona = zona.filter(ImageFilter.GaussianBlur(DESENFOQUE))
     zona = ImageEnhance.Color(zona.crop((m, m, m + w, m + h))).enhance(1.2)
     cristal = Image.blend(zona, Image.new('RGB', (w, h), (255, 255, 255)), BLANCO).convert('RGBA')
 
@@ -97,15 +105,15 @@ def ventana(hero, pantalla, x, y, ancho):
 
 def main():
     if len(sys.argv) > 1:
-        hero, salida = cubrir(Image.open(sys.argv[1]).convert('RGB'), ANCHO, ALTO), 'hero.jpg'
+        foto, salida = cubrir(Image.open(sys.argv[1]).convert('RGB'), FOTO_W, FOTO_H), 'hero.jpg'
     else:
-        hero, salida = fondo_provisional(), 'hero-provisional.jpg'
+        foto, salida = cubrir(fondo_provisional(), FOTO_W, FOTO_H), 'hero-provisional.jpg'
+    # La foto, con las esquinas redondeadas como el resto de fotos del email, sobre el blanco de la tarjeta.
+    hero = Image.new('RGB', (ANCHO, ALTO), (255, 255, 255))
+    hero.paste(foto, (MARGEN, MARGEN), mascara_redonda(FOTO_W, FOTO_H, 40))
     for v in VENTANAS:
         ventana(hero, *v)
-    # Esquinas redondeadas como el resto de fotos del email: se rellenan del blanco de la tarjeta.
-    final = Image.new('RGB', hero.size, (255, 255, 255))
-    final.paste(hero, (0, 0), mascara_redonda(ANCHO, ALTO, 40))
-    final.save(salida, quality=86, optimize=True, progressive=True)
+    hero.save(salida, quality=86, optimize=True, progressive=True)
     print(salida)
 
 
