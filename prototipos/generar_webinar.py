@@ -35,7 +35,7 @@ D = dict(
     c1='Nos vemos', c2='en directo.', ccta='Apuntarme',
     pie='Software de gestión para federaciones, clubes y academias.',
     link='playoffinformatica.com', linkurl='https://playoffinformatica.com/',
-    legal='Recibes este correo porque formas parte de la comunidad Playoff. Playoff Informàtica, Girona.',
+    legal='Recibes este correo porque formas parte de la comunidad Playoff. Playoff Informàtica, Sabadell.',
 )
 
 

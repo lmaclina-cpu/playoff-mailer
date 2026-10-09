@@ -20,7 +20,7 @@
         { k: 'footerLink', label: 'Enlace del pie', type: 'text', def: 'playoffinformatica.com' },
         { k: 'footerLinkUrl', label: 'URL de ese enlace', type: 'url', def: 'https://playoffinformatica.com/' },
         { k: 'legal', label: 'Línea legal', type: 'textarea', rows: 2,
-          def: 'Recibes este correo porque formas parte de la comunidad Playoff. Playoff Informàtica, Girona.' }
+          def: 'Recibes este correo porque formas parte de la comunidad Playoff. Playoff Informàtica, Sabadell.' }
       ]).concat(extra || [])
     };
   }
